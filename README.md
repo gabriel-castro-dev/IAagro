@@ -3,6 +3,7 @@
 **Integrantes do Grupo:**
 - Gabriel Castro Inacio - 12300543
 - Guilherme Kaab - 12301230
+- Matheus Brum - 12303046
 - Vitor Zamana - 12301205
 - Giovanna Limotyrakis - 12302392
 - Mateus Crespo Marra - 1230144
