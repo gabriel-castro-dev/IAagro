@@ -79,8 +79,6 @@ Firebase Cloud Messaging: Envio de notificações em tempo real
 - [x] O usuário deve poder redefinir a senha
 - [ ] O sistema deve enviar notificações de lembrete (ex: alertas climáticos, práticas agrícolas).
 - [x] O usuário deve conseguir visualizar um histórico de atividades (ex: práticas aplicadas, alertas recebidos).
-- [ ] O sistema deve permitir integração com redes sociais para compartilhamento de boas práticas e interação com a comunidade     
-      agrícola.
 - [x] O usuário deve poder personalizar as configurações da interface (ex: escolher culturas de interesse, definir preferências de     
       notificação).
 - [ ] Deve haver um dashboard com métricas de uso (ex: produtividade, práticas aplicadas, histórico climático).
@@ -89,7 +87,8 @@ Firebase Cloud Messaging: Envio de notificações em tempo real
 - [ ] O sistema deve ter um sistema de busca eficiente, permitindo filtrar por culturas, recomendações técnicas, alertas climáticos e 
       insumos.
 - [x] Cadastro de Culturas, Insumos e Boas Práticas Agrícolas
-- [x]  Interação entre IA e Usuário
+- [x] Busca de endereço por CEP
+- [ ]  Interação entre IA e Usuário
 - [ ]  Notificações por E-mail
 - [x]  Integração com APIs de Previsão do Tempo e Monitoramento Climático
 - [ ]  Opção de Backups para o cliente
