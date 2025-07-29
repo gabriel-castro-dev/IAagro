@@ -14,7 +14,7 @@
 ---
 ## Sobre o Projeto - IAagro
 O IAagro é uma plataforma digital desenvolvida com o objetivo de auxiliar agricultores de micro e médio porte no controle, análise e tomada de decisão sobre suas lavouras. A proposta central é oferecer uma ferramenta inteligente, acessível e personalizada que integre dados agronômicos, históricos de produção, alertas climáticos e recomendações técnicas com o apoio de inteligência artificial.
-
+---
 ## Objetivo
 Nosso principal objetivo é empoderar pequenos e médios produtores rurais com tecnologia de ponta para que possam:
 
@@ -27,7 +27,7 @@ Obter recomendações técnicas personalizadas, otimizadas com base nos dados ca
 Compartilhar boas práticas e interagir com a comunidade agrícola, por meio de integração com redes sociais.
 
 Tomar decisões baseadas em dados, com suporte de dashboards, análises e relatórios exportáveis.
-
+---
 ## Contexto
 O setor agrícola ainda enfrenta muitos desafios quanto ao uso de tecnologia acessível para pequenos produtores. A carência de soluções simples, eficientes e adaptáveis à realidade do campo motivou o desenvolvimento do IAagro, que busca:
 
@@ -36,8 +36,41 @@ Reduzir a distância entre o produtor e a informação qualificada.
 Facilitar o uso de dados e inteligência artificial na agricultura de precisão.
 
 Fomentar uma comunidade de troca de conhecimento agrícola.
+---
+## Especificações Técnicas
+O IAagro foi desenvolvido utilizando tecnologias modernas e escaláveis para garantir uma experiência fluida, segura e responsiva ao usuário, tanto no desktop quanto no mobile.
+---
+## Front-end
+Framework: React.js
 
+Principais recursos:
 
+Componentização reutilizável
+
+Interface responsiva (com suporte mobile)
+
+Integração com APIs externas (clima, recomendações, etc.)
+
+Rotas protegidas para usuários autenticados
+---
+## Back-end
+Ambiente de execução: Node.js
+
+API RESTful: Gerencia as requisições entre o front-end, banco de dados e serviços externos
+
+Segurança: Implementação de autenticação JWT e gerenciamento de sessões de forma segura
+---
+## Banco de Dados e Autenticação
+Plataforma: Firebase
+
+Serviços utilizados:
+
+Firestore: Armazenamento em tempo real de dados agronômicos, históricos e perfis de usuário
+
+Firebase Authentication: Gerenciamento de contas e login seguro com suporte a redefinição de senha
+
+Firebase Cloud Messaging: Envio de notificações em tempo real
+---
 ## Checklist das Funcionalidades
 
 ### Funcionalidades Obrigatórias
