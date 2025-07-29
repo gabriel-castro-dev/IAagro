@@ -36,7 +36,7 @@ Reduzir a distância entre o produtor e a informação qualificada.
 Facilitar o uso de dados e inteligência artificial na agricultura de precisão.
 
 Fomentar uma comunidade de troca de conhecimento agrícola.
----
+
 ## Especificações Técnicas
 O IAagro foi desenvolvido utilizando tecnologias modernas e escaláveis para garantir uma experiência fluida, segura e responsiva ao usuário, tanto no desktop quanto no mobile.
 
