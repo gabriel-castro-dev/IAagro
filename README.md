@@ -12,6 +12,31 @@
 **Turma:** [3B1] 
 
 ---
+## Sobre o Projeto - IAagro
+O IAagro é uma plataforma digital desenvolvida com o objetivo de auxiliar agricultores de micro e médio porte no controle, análise e tomada de decisão sobre suas lavouras. A proposta central é oferecer uma ferramenta inteligente, acessível e personalizada que integre dados agronômicos, históricos de produção, alertas climáticos e recomendações técnicas com o apoio de inteligência artificial.
+
+## Objetivo
+Nosso principal objetivo é empoderar pequenos e médios produtores rurais com tecnologia de ponta para que possam:
+
+Acompanhar o desempenho das lavouras, com base em dados históricos, produtividade, clima e insumos aplicados.
+
+Receber alertas climáticos e pragas, permitindo agir de forma preventiva.
+
+Obter recomendações técnicas personalizadas, otimizadas com base nos dados cadastrados e atualizações automáticas.
+
+Compartilhar boas práticas e interagir com a comunidade agrícola, por meio de integração com redes sociais.
+
+Tomar decisões baseadas em dados, com suporte de dashboards, análises e relatórios exportáveis.
+
+## Contexto
+O setor agrícola ainda enfrenta muitos desafios quanto ao uso de tecnologia acessível para pequenos produtores. A carência de soluções simples, eficientes e adaptáveis à realidade do campo motivou o desenvolvimento do IAagro, que busca:
+
+Reduzir a distância entre o produtor e a informação qualificada.
+
+Facilitar o uso de dados e inteligência artificial na agricultura de precisão.
+
+Fomentar uma comunidade de troca de conhecimento agrícola.
+
 
 ## Checklist das Funcionalidades
 
