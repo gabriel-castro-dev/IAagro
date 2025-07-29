@@ -70,7 +70,7 @@ Firestore: Armazenamento em tempo real de dados agronômicos, históricos e perf
 Firebase Authentication: Gerenciamento de contas e login seguro com suporte a redefinição de senha
 
 Firebase Cloud Messaging: Envio de notificações em tempo real
----
+
 ## Checklist das Funcionalidades
 
 ### Funcionalidades Obrigatórias
