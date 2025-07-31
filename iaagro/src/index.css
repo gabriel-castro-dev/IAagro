@@ -1,0 +1,84 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+      background-color: #f3f2eb;
+      color: #243423;
+      min-height: 100vh;
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #243423;
+      border-radius: 100px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f3f2eb;
+    }
+    /* Sidebar link icons */
+    .sidebar-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+      stroke: #cbd5e0;
+      transition: stroke 0.3s ease;
+      margin-right: 0.75rem;
+      flex-shrink: 0;
+    }
+    .sidebar-link.active, .sidebar-link:hover {
+      color: #d0e8c6;
+    }
+    .sidebar-link.active .sidebar-icon svg,
+    .sidebar-link:hover .sidebar-icon svg {
+      stroke: #d0e8c6;
+    }
+    /* Button toggle */
+    input:checked + .toggle-bg {
+      background-color: #375125;
+    }
+    input:checked + .toggle-bg .toggle-circle {
+      transform: translateX(1.25rem);
+      background-color: #d0e8c6;
+    }
+    /* Loading icon */
+    .lds-dual-ring {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+    }
+    .lds-dual-ring:after {
+      content: " ";
+      display: block;
+      width: 16px;
+      height: 16px;
+      margin: 2px;
+      border-radius: 50%;
+      border: 2px solid #375125;
+      border-color: #375125 transparent #375125 transparent;
+      animation: lds-dual-ring 1.2s linear infinite;
+    }
+
+    
+    @keyframes lds-dual-ring {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }}
+        a {
+      text-decoration: none;
+      color: #2c422d;
+      font-size: 14px;
+    }
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
