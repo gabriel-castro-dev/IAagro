@@ -58,7 +58,7 @@ Ambiente de execução: Node.js
 
 API RESTful: Gerencia as requisições entre o front-end, banco de dados e serviços externos
 
-Segurança: Implementação de autenticação JWT e gerenciamento de sessões de forma segura
+Segurança: Implementação de autenticação Firebase e gerenciamento de sessões de forma segura
 
 ## Banco de Dados e Autenticação
 Plataforma: Firebase
