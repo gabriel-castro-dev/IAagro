@@ -24,8 +24,16 @@ import {
     applyCEPMask 
 } from '../services/addressService';
 import styles from './Home.module.css';
+import { UserController } from '../controllers/UserController';
+import { WeatherController } from '../controllers/WeatherController';
+import { AddressController } from '../controllers/AddressController';
 
 const Home = () => {
+    // Controllers
+    const userController = new UserController();
+    const weatherController = new WeatherController();
+    const addressController = new AddressController();
+    
     const { currentUser, userLoggedIn } = useAuth();
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState('dashboard');
@@ -192,63 +200,27 @@ const Home = () => {
 
  // NOVA FUNÇÃO: Buscar endereço por CEP com preenchimento automático
 const handleCEPChange = async (inputValue) => {
-    // Aplicar máscara no valor
-    const maskedValue = applyCEPMask(inputValue);
+    const cleanCEP = inputValue.replace(/\D/g, '');
     
-    // Atualizar o campo CEP imediatamente com a máscara
-    setProfileSettings(prev => ({
-        ...prev,
-        cep: maskedValue
-    }));
-    
-    setCepError(null);
-
-    // Se o CEP tiver 8 dígitos (formato completo 00000-000), buscar o endereço
-    const cleanCEP = maskedValue.replace(/\D/g, '');
     if (cleanCEP.length === 8) {
         try {
             setLoadingCEP(true);
-            console.log('🔍 Buscando CEP:', cleanCEP);
+            setCepError(null);
             
-            const result = await getAddressByCEP(cleanCEP);
+            // Usar AddressController
+            const result = await addressController.searchAddressByCEP(cleanCEP);
             
             if (result.success) {
-                // Preencher os campos automaticamente
-                setProfileSettings(prev => ({
-                    ...prev,
-                    cep: formatCEP(result.data.cep),
-                    endereco: result.data.logradouro || prev.endereco,
-                    cidade: result.data.localidade || prev.cidade,
-                    estado: result.data.uf || prev.estado
+                const addressData = result.data;
+                setProfileSettings(prevSettings => ({
+                    ...prevSettings,
+                    cep: addressData.cep,
+                    endereco: addressData.endereco,
+                    cidade: addressData.cidade,
+                    estado: addressData.estado
                 }));
                 
-                console.log('📍 Endereço encontrado:', result.data);
-                
-                // ✨ NOVO: Atualizar clima automaticamente quando CEP for encontrado
-                if (currentPage === 'analises' || currentPage === 'perfil') {
-                    console.log('🌡️ Atualizando clima com novo CEP...');
-                    
-                    // Pequeno delay para garantir que o estado foi atualizado
-                    setTimeout(async () => {
-                        try {
-                            const cityName = `${result.data.localidade}, ${result.data.uf}`;
-                            const weatherResult = await getWeatherByCity(cityName);
-                            
-                            if (weatherResult.success) {
-                                setWeatherData(weatherResult.data);
-                                console.log('🌡️ Clima atualizado com sucesso:', weatherResult.data);
-                                
-                                // Mostrar notificação de sucesso
-                                if (currentPage === 'perfil') {
-                                    alert(`✅ CEP encontrado e clima atualizado para ${result.data.localidade}!`);
-                                }
-                            }
-                        } catch (weatherError) {
-                            console.log('⚠️ Erro ao atualizar clima:', weatherError);
-                        }
-                    }, 500);
-                }
-                
+                console.log('✅ CEP encontrado:', addressData);
             } else {
                 setCepError(result.error);
                 console.log('❌ CEP não encontrado:', result.error);
@@ -270,8 +242,11 @@ const handleCEPChange = async (inputValue) => {
                     setLoading(true);
                     console.log('Carregando dados do usuário:', currentUser.uid);
                     
-                    const userProfile = await getUserProfile(currentUser.uid);
-                    userProfile.email = currentUser.email;
+                    // Usar UserController em vez de chamada direta
+                    const userProfile = await userController.loadUserProfile(
+                        currentUser.uid, 
+                        currentUser.email
+                    );
                     
                     setProfileSettings(userProfile);
                     setTheme(userProfile.tema || 'light');
@@ -286,11 +261,7 @@ const handleCEPChange = async (inputValue) => {
                     await loadHistoricoData();
                     
                 } catch (error) {
-                    console.error('Erro ao carregar dados:', error);
-                    setProfileSettings(prev => ({
-                        ...prev,
-                        email: currentUser.email
-                    }));
+                    console.error('Erro ao carregar dados do usuário:', error);
                     setUserName(currentUser.email.split('@')[0].toUpperCase());
                 } finally {
                     setLoading(false);
@@ -298,9 +269,7 @@ const handleCEPChange = async (inputValue) => {
             }
         };
 
-        if (userLoggedIn && currentUser) {
-            loadUserData();
-        }
+        loadUserData();
     }, [currentUser, userLoggedIn]);
 
     // Aplicar tema (existente)
@@ -414,28 +383,22 @@ const handleCEPChange = async (inputValue) => {
     const saveProfileSettingsHandler = async (e) => {
         e.preventDefault();
         
-        if (!currentUser?.uid) {
-            alert('Erro: Usuário não identificado');
-            return;
-        }
-
         try {
             setSaving(true);
-            console.log('Salvando configurações do perfil:', profileSettings);
             
-            await saveUserProfile(currentUser.uid, profileSettings);
+            // Usar UserController
+            const result = await userController.saveUserProfile(currentUser.uid, profileSettings);
             
-            setTheme(profileSettings.tema);
-            localStorage.setItem('theme', profileSettings.tema);
-            
-            if (profileSettings.nomeCompleto) {
-                setUserName(profileSettings.nomeCompleto.split(' ')[0].toUpperCase());
+            if (result.success) {
+                alert('Configurações salvas com sucesso!');
+                console.log('Perfil salvo:', result.data);
+            } else {
+                alert(`Erro ao salvar: ${result.error}`);
+                console.error('Erro ao salvar perfil:', result.error);
             }
-            
-            alert('Configurações salvas com sucesso no banco!');
         } catch (error) {
-            console.error('Erro ao salvar configurações:', error);
-            alert('Erro ao salvar configurações: ' + error.message);
+            console.error('Erro ao salvar configurações do perfil:', error);
+            alert('Erro ao salvar configurações. Tente novamente.');
         } finally {
             setSaving(false);
         }

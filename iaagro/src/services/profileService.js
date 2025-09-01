@@ -297,4 +297,15 @@ export const getUserAgronomicalDataForHistory = async (userId) => {
     }
 };
 
+// AddressController.js - para centralizar lógica de CEP
+export class AddressController {
+    async searchAddressByCEP(cep) {
+        // Implementar lógica usando addressService
+    }
+    
+    async validateAndFormatAddress(addressData) {
+        // Validações e formatação
+    }
+}
+
 export { defaultProfileSettings };
