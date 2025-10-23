@@ -49,7 +49,7 @@ O setor agrícola enfrenta desafios na adoção de tecnologia acessível. O IAag
 ### 🎨 Front-end
 - Framework: **React.js**
 - Componentização reutilizável  
-- Interface responsiva (mobile e desktop)  
+- Recharts (Gráficos e vizualização)
 - Integração com APIs externas (clima, recomendações, etc.)  
 - Rotas protegidas para usuários autenticados  
 
@@ -62,8 +62,10 @@ O setor agrícola enfrenta desafios na adoção de tecnologia acessível. O IAag
 - Plataforma: **Firebase**  
 - Firestore: armazenamento em tempo real  
 - Authentication: login seguro e redefinição de senha  
-- Cloud Messaging: notificações em tempo real  
+- EmailJS: notificações em tempo real  
 
+### 🗄️ Inteligência Artificial
+- Google Gemini AI
 ---
 
 ## 🏛️ Arquitetura MVC + Repository Pattern
