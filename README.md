@@ -98,17 +98,17 @@ src/
 - [x] Cadastro de usuários  
 - [x] Login com autenticação  
 - [x] Redefinição de senha  
-- [ ] Notificações de lembrete (climáticas, agrícolas)  
+- [x] Notificações de lembrete (climáticas, agrícolas)  
 - [x] Histórico de atividades  
 - [x] Configurações personalizáveis  
-- [ ] Dashboard com métricas de uso  
+- [x] Dashboard com métricas de uso  
 - [x] Calculadora Inteligente de Produtividade e Irrigação 
 - [ ] Exportação de relatórios em PDF  
 - [x] Lista de tarefas  
 - [x] Cadastro de Culturas, Insumos e Boas Práticas  
 - [x] Busca de endereço por CEP  
 - [x] Interação IA ↔ Usuário  
-- [ ] Notificações por E-mail  
+- [x] Notificações por E-mail  
 - [x] Integração com APIs de previsão do tempo  
 - [ ] Backup de dados para cliente  
 - [x] Atualização automática de recomendações  
