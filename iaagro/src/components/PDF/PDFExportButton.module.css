@@ -1,0 +1,104 @@
+.exportButton {
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.exportButton:hover:not(:disabled) {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.exportButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #9ca3af;
+    transform: none;
+    box-shadow: none;
+}
+
+.exportButton:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Botão grande para seções principais */
+.exportButtonLarge {
+    padding: 1.25rem 2rem;
+    font-size: 1.05rem;
+    min-width: 280px;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+.exportButtonLarge:hover:not(:disabled) {
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+}
+
+/* Loading State */
+.exportButton:disabled::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Dark Theme */
+[data-theme="dark"] .exportButton {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+}
+
+[data-theme="dark"] .exportButton:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 6px 20px rgba(248, 113, 113, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .exportButton {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .exportButtonLarge {
+        min-width: unset;
+        width: 100%;
+        padding: 1.25rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .exportButton {
+        font-size: 0.875rem;
+        padding: 0.875rem 1rem;
+    }
+
+    .exportButtonLarge {
+        font-size: 0.95rem;
+        padding: 1.125rem 1.25rem;
+    }
+}

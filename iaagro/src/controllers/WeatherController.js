@@ -1,18 +1,28 @@
 import { WeatherRepository } from '../repositories/WeatherRepository';
 import { WeatherData } from '../models/WeatherData';
-import { getWeatherByCity, getWeatherByCoordinates, getCurrentLocation } from '../services/weatherService';
+import { 
+    getWeatherByCity, 
+    getWeatherByCEP, 
+    getWeatherByCoordinates,
+    getWeatherForecast,
+    getCurrentLocation 
+} from '../services/weatherService';
 
 export class WeatherController {
     constructor() {
         this.weatherRepository = new WeatherRepository();
     }
 
-    // Obter dados climáticos por cidade (com cache)
+    /**
+     * Buscar clima por cidade
+     */
     async getWeatherByCity(cityName, userId = null) {
         try {
             if (!cityName) {
                 throw new Error('Nome da cidade é obrigatório');
             }
+
+            console.log('🌤️ Controller: Buscando clima para', cityName);
 
             // Tentar buscar no cache primeiro
             let weatherData = await this.weatherRepository.findByCity(cityName);
@@ -51,6 +61,20 @@ export class WeatherController {
                 success: false,
                 error: error.message
             };
+        }
+    }
+
+    /**
+     * Buscar clima por CEP
+     */
+    async getWeatherByCEP(cep) {
+        try {
+            console.log('📍 Controller: Buscando clima por CEP', cep);
+            const result = await getWeatherByCEP(cep);
+            return result;
+        } catch (error) {
+            console.error('❌ Controller Error:', error);
+            return { success: false, error: error.message };
         }
     }
 
@@ -98,6 +122,32 @@ export class WeatherController {
                 success: false,
                 error: error.message
             };
+        }
+    }
+
+    /**
+     * Buscar previsão
+     */
+    async getForecast(cityName) {
+        try {
+            const result = await getWeatherForecast(cityName);
+            return result;
+        } catch (error) {
+            console.error('❌ Controller Error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Obter localização atual
+     */
+    async getCurrentLocation() {
+        try {
+            const coords = await getCurrentLocation();
+            return { success: true, data: coords };
+        } catch (error) {
+            console.error('❌ Controller Error:', error);
+            return { success: false, error: error.message };
         }
     }
 

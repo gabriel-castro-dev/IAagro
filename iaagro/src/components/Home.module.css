@@ -514,8 +514,8 @@
 }
 
 .errorInput {
-    border-color: var(--danger-color) !important;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+    border-color: #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.05);
 }
 
 /* Social Media Buttons (se não existirem) */
@@ -1115,101 +1115,758 @@
     background: var(--bg-secondary);
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .analyticsGrid {
-        grid-template-columns: 1fr;
-    }
-    
-    .filterForm {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1rem;
-        padding: 1.5rem;
-    }
+/* NOVOS ESTILOS PARA O CARD DO ASSISTENTE IA */
+.aiAssistantCard {
+    background: linear-gradient(135deg, #f8fdf3 0%, #e8f5e9 100%);
+    border: 2px solid #a6bd8c;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 12px rgba(166, 189, 140, 0.15);
 }
 
+.aiAssistantHeader {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(166, 189, 140, 0.3);
+}
+
+.aiAssistantIcon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #a6bd8c 0%, #8da871 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 4px 12px rgba(166, 189, 140, 0.3);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.aiAssistantHeader h2 {
+    margin: 0;
+    color: #2c5f2d;
+    font-size: 1.5rem;
+}
+
+.aiAssistantHeader p {
+    margin: 0.25rem 0 0 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.aiAssistantContent > p {
+    font-size: 1.1rem;
+    color: #2c5f2d;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.aiCapabilities {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.aiCapability {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid rgba(166, 189, 140, 0.3);
+    transition: all 0.3s ease;
+}
+
+.aiCapability:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(166, 189, 140, 0.2);
+    border-color: #a6bd8c;
+}
+
+.aiCapabilityIcon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.aiCapability strong {
+    display: block;
+    color: #2c5f2d;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.aiCapability p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.openChatButton {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #a6bd8c 0%, #8da871 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(166, 189, 140, 0.3);
+    margin-bottom: 1.5rem;
+}
+
+.openChatButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(166, 189, 140, 0.4);
+}
+
+.aiQuickStart {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #a6bd8c;
+}
+
+.aiQuickStart strong {
+    color: #2c5f2d;
+    display: block;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.aiQuickStart ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.aiQuickStart li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    color: #555;
+    line-height: 1.6;
+}
+
+.aiQuickStart li::before {
+    content: "💡";
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+}
+
+/* Dashboard Sections */
+.dashboardSection {
+    margin: 1.5rem 0;
+}
+
+.dashboardSection h3 {
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.dashboardSection ul,
+.dashboardSection ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.dashboardSection li {
+    margin: 0.5rem 0;
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+.dashboardTip {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #ffffff;
+    margin-top: 1.5rem;
+    color: #ffffff;
+}
+
+/* Estatísticas Rápidas */
+.quickStats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.statCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover {
+    border-color: #a6bd8c;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.statIcon {
+    font-size: 2.5rem;
+}
+
+.statCard strong {
+    display: block;
+    font-size: 1.75rem;
+    color: #2c5f2d;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.statCard p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* ========================================
+   NOTIFICAÇÕES - ESTILOS
+   ======================================== */
+
+/* Card de Status de Notificações (Dashboard) */
+.notificationStatusCard {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    margin-top: 1.5rem;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.notificationStatusHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.notificationStatusIcon {
+    font-size: 1.5rem;
+}
+
+.notificationStatusHeader h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notificationStatusMessage {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.notificationStatusDate {
+    margin: 0;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+}
+
+/* Seção de Notificações no Perfil */
+.notificationSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.notificationInfo {
+    background: var(--bg-tertiary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.notificationInfo p {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.notificationInfo p:last-child {
+    margin-bottom: 0;
+}
+
+.notificationInfo strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.notificationActions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.testEmailButton,
+.checkTasksButton {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.testEmailButton {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.testEmailButton:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.checkTasksButton {
+    background: linear-gradient(135deg, #a6bd8c 0%, #7a9b5d 100%);
+    color: white;
+}
+
+.checkTasksButton:hover {
+    background: linear-gradient(135deg, #7a9b5d 0%, #5a7a3d 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(166, 189, 140, 0.3);
+}
+
+.testEmailButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.notificationStatusInline {
+    padding: 1rem;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Toast de Notificação (Flutuante) */
+.notificationToast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    min-width: 300px;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+.notificationToast[data-type="success"] {
+    border-left: 4px solid #10b981;
+}
+
+.notificationToast[data-type="error"] {
+    border-left: 4px solid #ef4444;
+}
+
+.notificationToast[data-type="info"] {
+    border-left: 4px solid #3b82f6;
+}
+
+.toastContent {
+    display: flex;
+    align-items: start;
+    gap: 0.75rem;
+}
+
+.toastIcon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.toastMessage {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Dark Theme */
+[data-theme="dark"] .notificationStatusCard {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+}
+
+[data-theme="dark"] .notificationToast {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .table {
-        font-size: 0.85rem;
-    }
-    
-    .tableHeaderCell,
-    .tableCell {
-        padding: 0.75rem 0.5rem;
-    }
-    
-    .filterForm {
-        grid-template-columns: 1fr;
-        padding: 1rem;
-    }
-    
-    .filterButton {
-        width: 100%;
-        padding: 1rem;
-    }
-    
-    .historicoSummary {
+    .notificationActions {
         flex-direction: column;
-        text-align: center;
-        gap: 1rem;
     }
-    
-    .refreshButton {
+
+    .testEmailButton,
+    .checkTasksButton {
         width: 100%;
-        justify-content: center;
+        min-width: unset;
     }
-    
-    .formGrid {
-        grid-template-columns: 1fr;
-    }
-    
-    .analyticsGrid {
-        gap: 1.5rem;
-    }
-    
-    .analyticsSection {
-        padding: 1.5rem;
+
+    .notificationToast {
+        right: 10px;
+        left: 10px;
+        min-width: unset;
+        max-width: unset;
     }
 }
 
 @media (max-width: 480px) {
-    .historyContainer,
-    .analyticsContainer,
-    .formContainer {
+    .notificationToast {
+        top: 70px;
+        padding: 0.875rem 1rem;
+    }
+
+    .toastIcon {
+        font-size: 1.25rem;
+    }
+
+    .toastMessage {
+        font-size: 0.875rem;
+    }
+}
+
+/* ========================================
+   CAMPO CEP - ESTILOS ESPECIAIS
+   ======================================== */
+
+.loadingInput {
+    background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+    background-size: 200% 100%;
+    animation: loadingShimmer 1.5s ease-in-out infinite;
+    cursor: wait;
+}
+
+@keyframes loadingShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.errorInput {
+    border-color: #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+.errorText {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-left: 8px;
+}
+
+.profileField input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(166, 189, 140, 0.1);
+}
+
+.profileField input:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.notificationHints {
+    background: #f0f9ff;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+    margin-top: 1rem;
+}
+
+.notificationHints p {
+    margin: 0 0 0.5rem 0;
+    color: #111827;
+    font-weight: 600;
+}
+
+.notificationHints ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.notificationHints li {
+    margin-bottom: 0.5rem;
+}
+
+.notificationHints strong {
+    color: #374151;
+}
+
+[data-theme="dark"] .notificationHints {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+[data-theme="dark"] .notificationHints p {
+    color: #e5e7eb;
+}
+
+[data-theme="dark"] .notificationHints li {
+    color: #9ca3af;
+}
+/* Dark theme adjustments */
+[data-theme="dark"] .errorInput {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+[data-theme="dark"] .loadingInput {
+    background: linear-gradient(90deg, #374151 0%, #4b5563 50%, #374151 100%);
+    background-size: 200% 100%;
+}
+
+/* ========================================
+   SEÇÃO DE EXPORTAÇÃO PDF
+   ======================================== */
+
+.exportSection {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 2px solid #fca5a5;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+    transition: all 0.3s ease;
+}
+
+.exportSection:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.15);
+    border-color: #f87171;
+}
+
+.exportInfo {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.exportIcon {
+    font-size: 3rem;
+    flex-shrink: 0;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+.exportInfo h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #991b1b;
+}
+
+.exportInfo p {
+    margin: 0;
+    font-size: 1rem;
+    color: #7f1d1d;
+    opacity: 0.9;
+}
+
+/* Container para múltiplos botões de exportação */
+.exportActions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Dark Theme */
+[data-theme="dark"] .exportSection {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .exportSection:hover {
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+}
+
+[data-theme="dark"] .exportInfo h3 {
+    color: #fca5a5;
+}
+
+[data-theme="dark"] .exportInfo p {
+    color: #fecaca;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .exportSection {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .exportInfo {
+        width: 100%;
+    }
+
+    .exportActions {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .exportSection {
         padding: 1.5rem;
-        margin: 0 0.5rem;
     }
-    
-    .table {
-        font-size: 0.8rem;
+
+    .exportIcon {
+        font-size: 2.5rem;
     }
-    
-    .tableHeaderCell,
-    .tableCell {
-        padding: 0.5rem 0.25rem;
+
+    .exportInfo h3 {
+        font-size: 1.2rem;
     }
-    
-    .filterForm {
-        padding: 1rem;
+
+    .exportInfo p {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .exportSection {
+        padding: 1.25rem;
+    }
+
+    .exportIcon {
+        font-size: 2rem;
+    }
+
+    .exportInfo {
+        flex-direction: column;
+        align-items: flex-start;
         gap: 0.75rem;
     }
-    
-    .filterButton,
-    .refreshButton,
-    .submitButton {
-        padding: 0.875rem 1rem;
-        font-size: 0.85rem;
+
+    .exportInfo h3 {
+        font-size: 1.1rem;
     }
-    
-    .emptyState {
-        padding: 2rem 1rem;
+
+    .exportInfo p {
+        font-size: 0.9rem;
     }
-    
-    .chartPlaceholder {
-        padding: 2rem 1rem;
-    }
-    
-    .analyticsSection {
-        padding: 1rem;
-    }
+}
+
+/* ========================================
+   CONTAINER DE TAREFAS
+   ======================================== */
+
+.tasksContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+/* ========================================
+   MÚLTIPLOS BOTÕES DE EXPORTAÇÃO
+   ======================================== */
+
+.multipleExportSection {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.multipleExportSection h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.exportGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.exportOption {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.exportOption:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-color);
+    box-shadow: 0 6px 20px var(--shadow);
+}
+
+.exportOption h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.exportOption p {
+    margin: 0 0 1.25rem 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
 }

@@ -1,0 +1,435 @@
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 30px;
+}
+
+.header h2 {
+    font-size: 28px;
+    color: #1f2937;
+    margin-bottom: 20px;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.statCard {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.statLabel {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.statValue {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filterBtn, .filterActive {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.filterBtn {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.filterBtn:hover {
+    background: #e5e7eb;
+}
+
+.filterActive {
+    background: #4f46e5;
+    color: white;
+}
+
+.addBtn {
+    padding: 10px 20px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-left: auto;
+    transition: background 0.3s;
+}
+
+.addBtn:hover {
+    background: #059669;
+}
+
+.form {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.form h3 {
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formGroup label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+}
+
+.formActions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.submitBtn, .cancelBtn {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.submitBtn {
+    background: #4f46e5;
+    color: white;
+}
+
+.submitBtn:hover {
+    background: #4338ca;
+}
+
+.cancelBtn {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.cancelBtn:hover {
+    background: #e5e7eb;
+}
+
+.taskList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.loading, .empty {
+    text-align: center;
+    padding: 40px;
+    color: #6b7280;
+}
+
+.empty button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.taskCard {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+}
+
+.taskCard:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.taskCard.completed {
+    opacity: 0.7;
+}
+
+.taskCard.completed h4 {
+    text-decoration: line-through;
+}
+
+.taskHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.taskTitle {
+    display: flex;
+    gap: 15px;
+    flex: 1;
+}
+
+.checkBtn {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #10b981;
+    font-size: 14px;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+.checkBtn:hover {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.taskCard.completed .checkBtn {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.taskTitle h4 {
+    font-size: 16px;
+    color: #1f2937;
+    margin-bottom: 5px;
+}
+
+.taskDesc {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.deleteBtn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 16px;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.deleteBtn:hover {
+    opacity: 1;
+}
+
+.taskFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.taskMeta {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 14px;
+}
+
+.category {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    color: #6b7280;
+}
+
+.date {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #6b7280;
+}
+
+.date.overdue {
+    color: #ef4444;
+    font-weight: 500;
+}
+
+.date.today {
+    color: #f59e0b;
+    font-weight: 500;
+}
+
+/* ========================================
+   SEÇÃO DE EXPORTAÇÃO PDF
+   ======================================== */
+
+.exportSection {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 2px solid #fca5a5;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+    transition: all 0.3s ease;
+}
+
+.exportSection:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.15);
+    border-color: #f87171;
+}
+
+.exportInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.exportIcon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.exportInfo h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #991b1b;
+}
+
+.exportInfo p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #7f1d1d;
+    opacity: 0.9;
+}
+
+/* Dark Theme */
+[data-theme="dark"] .exportSection {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .exportSection:hover {
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+[data-theme="dark"] .exportInfo h3 {
+    color: #fca5a5;
+}
+
+[data-theme="dark"] .exportInfo p {
+    color: #fecaca;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .addBtn {
+        margin-left: 0;
+        justify-content: center;
+    }
+
+    .exportSection {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    .exportIcon {
+        font-size: 2rem;
+    }
+
+    .exportInfo h3 {
+        font-size: 1rem;
+    }
+
+    .exportInfo p {
+        font-size: 0.85rem;
+    }
+}

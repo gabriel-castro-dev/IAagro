@@ -1,0 +1,449 @@
+/* ========================================
+   CHART COMPONENTS - Seguindo padrão Home.module.css
+   ======================================== */
+
+/* Chart Container Principal */
+.chartContainer {
+    background: var(--bg-secondary, #ffffff);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px var(--shadow, rgba(0, 0, 0, 0.1));
+    border: 1px solid var(--border-color, #dee2e6);
+    margin: 2rem auto;
+    max-width: 1200px;
+}
+
+/* Chart Header */
+.chartHeader {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--accent-color, #a6bd8c);
+}
+
+.chartHeader h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #212529);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chartHeader p {
+    color: var(--text-secondary, #6c757d);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Empty Chart State */
+.emptyChart {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--bg-tertiary, #f1f3f4);
+    border-radius: 12px;
+    border: 2px dashed var(--border-color, #dee2e6);
+}
+
+.emptyChart p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary, #212529);
+    margin: 0 0 0.5rem 0;
+}
+
+.emptyChart span {
+    color: var(--text-secondary, #6c757d);
+    font-size: 0.95rem;
+}
+
+/* Chart Insights - Cards abaixo dos gráficos */
+.chartInsights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color, #dee2e6);
+}
+
+.insight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--bg-tertiary, #f1f3f4);
+    border-radius: 12px;
+    border: 1px solid var(--border-color, #dee2e6);
+    transition: all 0.3s ease;
+}
+
+.insight:hover {
+    background: var(--bg-secondary, #ffffff);
+    border-color: var(--accent-color, #a6bd8c);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px var(--shadow, rgba(0, 0, 0, 0.1));
+}
+
+.insightIcon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.insight div {
+    flex: 1;
+}
+
+.insight strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary, #6c757d);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.insight p {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-color, #a6bd8c);
+    margin: 0;
+}
+
+/* Activity Distribution - Lista de atividades */
+.activityList {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-tertiary, #f1f3f4);
+    border-radius: 12px;
+    border: 1px solid var(--border-color, #dee2e6);
+}
+
+.activityItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary, #ffffff);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-color, #dee2e6);
+    transition: all 0.3s ease;
+}
+
+.activityItem:last-child {
+    margin-bottom: 0;
+}
+
+.activityItem:hover {
+    border-color: var(--accent-color, #a6bd8c);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px var(--shadow, rgba(0, 0, 0, 0.08));
+}
+
+.activityColor {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.activityType {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text-primary, #212529);
+    font-size: 0.95rem;
+}
+
+.activityCount {
+    font-weight: 600;
+    color: var(--text-secondary, #6c757d);
+    font-size: 0.9rem;
+}
+
+/* Crop Comparison Table */
+.cropComparisonTable {
+    margin-top: 2rem;
+    overflow-x: auto;
+}
+
+.cropComparisonTable table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-secondary, #ffffff);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px var(--shadow, rgba(0, 0, 0, 0.08));
+}
+
+.cropComparisonTable thead {
+    background: linear-gradient(135deg, var(--accent-color, #a6bd8c) 0%, var(--accent-dark, #7a9b5d) 100%);
+    color: #ffffff;
+}
+
+.cropComparisonTable th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cropComparisonTable td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color, #dee2e6);
+    color: var(--text-primary, #212529);
+    font-size: 0.95rem;
+}
+
+.cropComparisonTable tbody tr {
+    transition: all 0.3s ease;
+}
+
+.cropComparisonTable tbody tr:hover {
+    background: var(--bg-tertiary, #f1f3f4);
+}
+
+.cropComparisonTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Recharts Custom Tooltip Style */
+.chartTooltip {
+    background: var(--bg-secondary, #ffffff) !important;
+    border: 1px solid var(--border-color, #dee2e6) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    box-shadow: 0 4px 12px var(--shadow, rgba(0, 0, 0, 0.1)) !important;
+}
+
+/* Weather Alerts Section (para gráficos) */
+.weatherAlertsSection {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-tertiary, #f1f3f4);
+    border-radius: 12px;
+    border: 1px solid var(--border-color, #dee2e6);
+}
+
+.weatherAlertsTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary, #212529);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Dark Theme Adjustments */
+[data-theme="dark"] .chartContainer {
+    background: var(--bg-secondary, #1e1e1e);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .emptyChart {
+    background: var(--bg-primary, #121212);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .insight {
+    background: var(--bg-primary, #121212);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .insight:hover {
+    background: var(--bg-secondary, #1e1e1e);
+    border-color: var(--accent-color, #a6bd8c);
+}
+
+[data-theme="dark"] .activityList {
+    background: var(--bg-primary, #121212);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .activityItem {
+    background: var(--bg-secondary, #1e1e1e);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .activityItem:hover {
+    border-color: var(--accent-color, #a6bd8c);
+}
+
+[data-theme="dark"] .cropComparisonTable table {
+    background: var(--bg-secondary, #1e1e1e);
+}
+
+[data-theme="dark"] .cropComparisonTable tbody tr:hover {
+    background: var(--bg-primary, #121212);
+}
+
+[data-theme="dark"] .weatherAlertsSection {
+    background: var(--bg-primary, #121212);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .chartContainer {
+        padding: 1.5rem;
+        margin: 1.5rem auto;
+    }
+
+    .chartHeader h3 {
+        font-size: 1.3rem;
+    }
+
+    .chartInsights {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .insight {
+        padding: 1rem;
+    }
+
+    .insightIcon {
+        font-size: 2rem;
+    }
+
+    .insight p {
+        font-size: 1.3rem;
+    }
+
+    .activityList {
+        padding: 1rem;
+    }
+
+    .activityItem {
+        padding: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .cropComparisonTable {
+        font-size: 0.85rem;
+    }
+
+    .cropComparisonTable th,
+    .cropComparisonTable td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .chartContainer {
+        padding: 1rem;
+        margin: 1rem auto;
+    }
+
+    .chartHeader h3 {
+        font-size: 1.15rem;
+    }
+
+    .chartHeader p {
+        font-size: 0.85rem;
+    }
+
+    .insight {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .insightIcon {
+        font-size: 2.5rem;
+    }
+
+    .activityItem {
+        font-size: 0.85rem;
+    }
+
+    .activityCount {
+        width: 100%;
+        text-align: right;
+        margin-top: 0.25rem;
+    }
+}
+
+/* Loading Animation para gráficos */
+@keyframes chartFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chartContainer {
+    animation: chartFadeIn 0.5s ease-out;
+}
+
+/* Hover effects para elementos interativos */
+.chartContainer:hover {
+    box-shadow: 0 12px 32px var(--shadow-dark, rgba(0, 0, 0, 0.15));
+}
+
+/* Estilo para legendas dos gráficos Recharts */
+:global(.recharts-legend-wrapper) {
+    padding-top: 20px !important;
+}
+
+:global(.recharts-legend-item-text) {
+    color: var(--text-primary, #212529) !important;
+    font-weight: 500 !important;
+}
+
+/* Estilo para tooltips dos gráficos Recharts */
+:global(.recharts-tooltip-wrapper) {
+    z-index: 100 !important;
+}
+
+:global(.recharts-default-tooltip) {
+    background: var(--bg-secondary, #ffffff) !important;
+    border: 1px solid var(--border-color, #dee2e6) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    box-shadow: 0 4px 12px var(--shadow, rgba(0, 0, 0, 0.1)) !important;
+}
+
+:global(.recharts-tooltip-label) {
+    color: var(--text-primary, #212529) !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+}
+
+:global(.recharts-tooltip-item) {
+    color: var(--text-secondary, #6c757d) !important;
+}
+
+/* Grid lines dos gráficos */
+:global(.recharts-cartesian-grid-horizontal line),
+:global(.recharts-cartesian-grid-vertical line) {
+    stroke: var(--border-color, #dee2e6) !important;
+}
+
+/* Eixos dos gráficos */
+:global(.recharts-xAxis text),
+:global(.recharts-yAxis text) {
+    fill: var(--text-secondary, #6c757d) !important;
+}
+
+/* Animação suave para barras e linhas */
+:global(.recharts-bar-rectangle),
+:global(.recharts-line) {
+    transition: all 0.3s ease !important;
+}
+
+/* Estilo para células do gráfico de pizza */
+:global(.recharts-pie-sector) {
+    transition: all 0.3s ease !important;
+}
+
+:global(.recharts-pie-sector:hover) {
+    filter: brightness(1.1) !important;
+}

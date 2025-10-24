@@ -4,31 +4,60 @@
  */
 
 // Configurações da API usando variáveis de ambiente
-const API_KEY = process.env.REACT_APP_WEATHER_API_KEY || '8a60b2de14f7a17c7a11706b2cfcd87c'; // Fallback temporário
+const API_KEY = process.env.REACT_APP_WEATHER_API_KEY || 'cc11141a4c6ee7ff6a52fb92d7b16c29';
 const BASE_URL = process.env.REACT_APP_WEATHER_BASE_URL || 'https://api.openweathermap.org/data/2.5';
 
 // Verificação de API Key
-if (!process.env.REACT_APP_WEATHER_API_KEY && process.env.NODE_ENV === 'production') {
-    console.warn('⚠️ Weather API Key não encontrada nas variáveis de ambiente');
+if (!process.env.REACT_APP_WEATHER_API_KEY) {
+    console.warn('⚠️ Weather API Key não encontrada nas variáveis de ambiente. Usando fallback.');
 }
+
+/**
+ * Limpar nome da cidade (remove país e formatações extras)
+ */
+const cleanCityName = (cityName) => {
+    if (!cityName) return '';
+    
+    // Remove ", BR" ou ", Brasil" do final
+    let cleaned = cityName.replace(/,\s*(BR|Brasil)$/i, '').trim();
+    
+    // Remove acentos para melhor compatibilidade
+    cleaned = cleaned.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    
+    return cleaned;
+};
 
 /**
  * Busca dados do clima por nome da cidade
  * @param {string} cityName - Nome da cidade
+ * @param {string} countryCode - Código do país (opcional, padrão: BR)
  * @returns {Promise<Object>} - Dados do clima
  */
-export const getWeatherByCity = async (cityName) => {
+export const getWeatherByCity = async (cityName, countryCode = 'BR') => {
     try {
         if (!cityName) {
             throw new Error('Nome da cidade é obrigatório');
         }
 
-        const apiUrl = `${BASE_URL}/weather?q=${encodeURI(cityName)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+        // Limpar o nome da cidade
+        const cleanedCity = cleanCityName(cityName);
+        
+        console.log('🌤️ Buscando clima para:', cleanedCity);
+
+        // Montar query: "cidade,código_país"
+        const query = `${cleanedCity},${countryCode}`;
+        
+        const apiUrl = `${BASE_URL}/weather?q=${encodeURIComponent(query)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+        
+        console.log('📡 URL da API:', apiUrl.replace(API_KEY, 'API_KEY_HIDDEN'));
         
         const response = await fetch(apiUrl);
         const data = await response.json();
 
+        console.log('📊 Resposta da API:', data);
+
         if (data.cod !== 200) {
+            console.error('❌ Erro da API:', data.message);
             throw new Error(data.message || 'Cidade não encontrada');
         }
 
@@ -37,9 +66,9 @@ export const getWeatherByCity = async (cityName) => {
             data: {
                 city: data.name,
                 country: data.sys.country,
-                temp: data.main.temp,
-                tempMax: data.main.temp_max,
-                tempMin: data.main.temp_min,
+                temp: Math.round(data.main.temp),
+                tempMax: Math.round(data.main.temp_max),
+                tempMin: Math.round(data.main.temp_min),
                 description: data.weather[0].description,
                 tempIcon: data.weather[0].icon,
                 windSpeed: data.wind.speed,
@@ -55,10 +84,53 @@ export const getWeatherByCity = async (cityName) => {
             }
         };
     } catch (error) {
-        console.error('Erro ao buscar dados do clima:', error);
+        console.error('❌ Erro ao buscar dados do clima:', error);
         return {
             success: false,
-            error: error.message
+            error: error.message,
+            data: null
+        };
+    }
+};
+
+/**
+ * Busca dados do clima por CEP (usando ViaCEP + OpenWeather)
+ * @param {string} cep - CEP da localidade
+ * @returns {Promise<Object>} - Dados do clima
+ */
+export const getWeatherByCEP = async (cep) => {
+    try {
+        if (!cep) {
+            throw new Error('CEP é obrigatório');
+        }
+
+        // Limpar CEP
+        const cleanedCEP = cep.replace(/\D/g, '');
+        
+        console.log('🔍 Buscando localização por CEP:', cleanedCEP);
+
+        // Buscar endereço pelo CEP
+        const cepResponse = await fetch(`https://viacep.com.br/ws/${cleanedCEP}/json/`);
+        const cepData = await cepResponse.json();
+
+        if (cepData.erro) {
+            throw new Error('CEP não encontrado');
+        }
+
+        const cidade = cepData.localidade;
+        const estado = cepData.uf;
+
+        console.log('📍 Localização encontrada:', cidade, estado);
+
+        // Buscar clima pela cidade
+        return await getWeatherByCity(cidade, 'BR');
+
+    } catch (error) {
+        console.error('❌ Erro ao buscar clima por CEP:', error);
+        return {
+            success: false,
+            error: error.message,
+            data: null
         };
     }
 };
@@ -75,6 +147,8 @@ export const getWeatherByCoordinates = async (lat, lon) => {
             throw new Error('Coordenadas são obrigatórias');
         }
 
+        console.log('🌍 Buscando clima por coordenadas:', { lat, lon });
+
         const apiUrl = `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
         
         const response = await fetch(apiUrl);
@@ -89,9 +163,9 @@ export const getWeatherByCoordinates = async (lat, lon) => {
             data: {
                 city: data.name,
                 country: data.sys.country,
-                temp: data.main.temp,
-                tempMax: data.main.temp_max,
-                tempMin: data.main.temp_min,
+                temp: Math.round(data.main.temp),
+                tempMax: Math.round(data.main.temp_max),
+                tempMin: Math.round(data.main.temp_min),
                 description: data.weather[0].description,
                 tempIcon: data.weather[0].icon,
                 windSpeed: data.wind.speed,
@@ -107,10 +181,11 @@ export const getWeatherByCoordinates = async (lat, lon) => {
             }
         };
     } catch (error) {
-        console.error('Erro ao buscar dados do clima por coordenadas:', error);
+        console.error('❌ Erro ao buscar clima por coordenadas:', error);
         return {
             success: false,
-            error: error.message
+            error: error.message,
+            data: null
         };
     }
 };
@@ -118,15 +193,19 @@ export const getWeatherByCoordinates = async (lat, lon) => {
 /**
  * Busca previsão de 5 dias
  * @param {string} cityName - Nome da cidade
+ * @param {string} countryCode - Código do país (opcional)
  * @returns {Promise<Object>} - Previsão do tempo
  */
-export const getWeatherForecast = async (cityName) => {
+export const getWeatherForecast = async (cityName, countryCode = 'BR') => {
     try {
         if (!cityName) {
             throw new Error('Nome da cidade é obrigatório');
         }
 
-        const apiUrl = `${BASE_URL}/forecast?q=${encodeURI(cityName)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+        const cleanedCity = cleanCityName(cityName);
+        const query = `${cleanedCity},${countryCode}`;
+
+        const apiUrl = `${BASE_URL}/forecast?q=${encodeURIComponent(query)}&appid=${API_KEY}&units=metric&lang=pt_br`;
         
         const response = await fetch(apiUrl);
         const data = await response.json();
@@ -142,9 +221,9 @@ export const getWeatherForecast = async (cityName) => {
                 country: data.city.country,
                 forecast: data.list.map(item => ({
                     date: new Date(item.dt * 1000),
-                    temp: item.main.temp,
-                    tempMax: item.main.temp_max,
-                    tempMin: item.main.temp_min,
+                    temp: Math.round(item.main.temp),
+                    tempMax: Math.round(item.main.temp_max),
+                    tempMin: Math.round(item.main.temp_min),
                     description: item.weather[0].description,
                     icon: item.weather[0].icon,
                     humidity: item.main.humidity,
@@ -153,10 +232,11 @@ export const getWeatherForecast = async (cityName) => {
             }
         };
     } catch (error) {
-        console.error('Erro ao buscar previsão do tempo:', error);
+        console.error('❌ Erro ao buscar previsão do tempo:', error);
         return {
             success: false,
-            error: error.message
+            error: error.message,
+            data: null
         };
     }
 };
@@ -197,7 +277,7 @@ export const getCurrentLocation = () => {
  * @returns {string} - Temperatura formatada
  */
 export const formatTemperature = (temp) => {
-    return `${temp.toFixed(1).toString().replace('.', ',')}°C`;
+    return `${Math.round(temp)}°C`;
 };
 
 /**
@@ -207,4 +287,32 @@ export const formatTemperature = (temp) => {
  */
 export const getWeatherIcon = (iconCode) => {
     return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+};
+
+/**
+ * Mapear códigos de clima para emojis
+ */
+export const getWeatherEmoji = (iconCode) => {
+    const emojiMap = {
+        '01d': '☀️', // céu limpo (dia)
+        '01n': '🌙', // céu limpo (noite)
+        '02d': '⛅', // poucas nuvens (dia)
+        '02n': '☁️', // poucas nuvens (noite)
+        '03d': '☁️', // nuvens dispersas
+        '03n': '☁️',
+        '04d': '☁️', // nuvens quebradas
+        '04n': '☁️',
+        '09d': '🌧️', // chuva
+        '09n': '🌧️',
+        '10d': '🌦️', // chuva (dia)
+        '10n': '🌧️', // chuva (noite)
+        '11d': '⛈️', // tempestade
+        '11n': '⛈️',
+        '13d': '❄️', // neve
+        '13n': '❄️',
+        '50d': '🌫️', // neblina
+        '50n': '🌫️'
+    };
+    
+    return emojiMap[iconCode] || '🌤️';
 };

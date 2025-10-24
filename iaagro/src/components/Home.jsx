@@ -3,6 +3,7 @@ import { useAuth } from '../authContext';
 import { doSignOut } from '../firebase/auth';
 import { useNavigate, Navigate } from 'react-router-dom';
 import SuggestedItemsFooter from './Footer/SuggestedItemsFooter';
+import ChatBot from './chatbot/ChatBot.jsx';
 import { 
     getUserProfile, 
     saveUserProfile, 
@@ -27,12 +28,24 @@ import styles from './Home.module.css';
 import { UserController } from '../controllers/UserController';
 import { WeatherController } from '../controllers/WeatherController';
 import { AddressController } from '../controllers/AddressController';
+import TaskList from './Tasks/TaskList';
+import ProductivityCalculator from './Calculators/ProductivityCalculator';
+import IrrigationCalculator from './Calculators/IrrigationCalculator';
+import ProductivityChartComponent from './Charts/ProductivityChart';
+import CostAnalysisChart from './Charts/CostAnalysisChart';
+import ActivityDistributionChart from './Charts/ActivityDistributionChart';
+import CropComparisonChart from './Charts/CropComparisonChart';
+import { TaskController } from '../controllers/TaskController';
+import { checkAndSendTaskReminders, sendTestEmail, checkTasksWithoutEmail } from '../services/emailNotificationService';
+import PDFExportButton from './PDF/PDFExportButton';
 
 const Home = () => {
     // Controllers
     const userController = new UserController();
     const weatherController = new WeatherController();
     const addressController = new AddressController();
+    // NOVO: Adicionar TaskController
+    const taskController = new TaskController();
     
     const { currentUser, userLoggedIn } = useAuth();
     const navigate = useNavigate();
@@ -79,7 +92,17 @@ const Home = () => {
     const [loadingCEP, setLoadingCEP] = useState(false);
     const [cepError, setCepError] = useState(null);
 
-    // Função para carregar dados do histórico (existente)
+    // NOVOS ESTADOS PARA NOTIFICAÇÕES
+    const [lastNotificationCheck, setLastNotificationCheck] = useState(
+        localStorage.getItem('lastTaskNotificationCheck') || null
+    );
+    const [notificationStatus, setNotificationStatus] = useState(null);
+
+    // NOVOS ESTADOS PARA TAREFAS
+    const [tasks, setTasks] = useState([]);
+    const [loadingTasks, setLoadingTasks] = useState(false);
+
+    // Função para carregar dados do histórico (CORRIGIDA)
     const loadHistoricoData = async () => {
         if (!currentUser?.uid) {
             console.log('Usuário não identificado para carregar histórico');
@@ -93,8 +116,19 @@ const Home = () => {
             const data = await getUserAgronomicalDataForHistory(currentUser.uid);
             console.log('Dados do histórico carregados:', data);
             
-            setHistoricoData(data);
+            // CORRIGIDO: Extrair dados brutos (dadosCompletos) para os gráficos
+            const dadosBrutos = data.map(item => ({
+                id: item.id,
+                ...item.dadosCompletos // ✅ Usa os dados originais do Firebase
+            }));
+            
+            console.log('📊 Dados brutos extraídos para gráficos:', dadosBrutos);
+            
+            // Para a tabela do histórico (formatado)
             setFilteredHistoricoData(data);
+            
+            // Para os gráficos (dados brutos)
+            setHistoricoData(dadosBrutos);
             
             if (data.length === 0) {
                 console.log('Nenhum dado encontrado no histórico');
@@ -113,116 +147,94 @@ const Home = () => {
 
     // NOVA FUNÇÃO: Carregar dados do clima baseado no CEP do perfil
     const loadWeatherData = async () => {
+        if (!profileSettings?.cep) {
+            console.log('CEP não encontrado no perfil');
+            return;
+        }
+
         try {
             setLoadingWeather(true);
-            setWeatherError(null);
-            
-            console.log('Dados do perfil:', profileSettings); // Debug
-            
-            // 1º: Tentar buscar pelo CEP (mais preciso)
-            if (profileSettings.cep) {
-                const cleanCEP = profileSettings.cep.replace(/\D/g, '');
-                console.log('🔍 Buscando clima pelo CEP:', cleanCEP);
-                
-                try {
-                    // Primeiro busca o endereço pelo CEP para pegar as coordenadas
-                    const addressResult = await getAddressByCEP(cleanCEP);
-                    
-                    if (addressResult.success && addressResult.data.localidade) {
-                        console.log('📍 Endereço encontrado:', addressResult.data);
-                        
-                        // Busca clima pela cidade do CEP
-                        const cityName = `${addressResult.data.localidade}, ${addressResult.data.uf}`;
-                        const weatherResult = await getWeatherByCity(cityName);
-                        
-                        if (weatherResult.success) {
-                            setWeatherData(weatherResult.data);
-                            console.log('🌡️ Clima carregado pelo CEP:', weatherResult.data);
-                            return;
-                        } else {
-                            console.log('❌ Erro ao buscar clima pela cidade do CEP:', weatherResult.error);
-                        }
-                    } else {
-                        console.log('❌ CEP não retornou localização válida');
-                    }
-                } catch (cepError) {
-                    console.log('❌ Erro ao processar CEP:', cepError.message);
-                }
-            }
-            
-            // 2º: Fallback - tentar buscar pela cidade manual
-            if (profileSettings.cidade && profileSettings.estado) {
-                console.log('🔄 Fallback - Buscando clima por cidade manual:', profileSettings.cidade, profileSettings.estado);
-                
-                const cityName = `${profileSettings.cidade}, ${profileSettings.estado}`;
-                const result = await getWeatherByCity(cityName);
-                
-                if (result.success) {
-                    setWeatherData(result.data);
-                    console.log('🌡️ Clima carregado por cidade manual:', result.data);
-                    return;
-                } else {
-                    console.log('❌ Erro ao buscar clima por cidade manual:', result.error);
-                }
-            }
-            
-            // 3º: Fallback - tentar geolocalização
-            try {
-                console.log('🌍 Fallback - Tentando geolocalização...');
-                const location = await getCurrentLocation();
-                const result = await getWeatherByCoordinates(location.lat, location.lon);
-                
-                if (result.success) {
-                    setWeatherData(result.data);
-                    console.log('🌡️ Clima carregado por geolocalização:', result.data);
-                    return;
-                }
-            } catch (geoError) {
-                console.log('❌ Geolocalização falhou:', geoError.message);
-            }
-            
-            // 4º: Se nada funcionou, mostrar erro
-            if (!profileSettings.cep && !profileSettings.cidade) {
-                setWeatherError('Para ver as condições climáticas, preencha seu CEP no perfil.');
-            } else {
-                setWeatherError('Não foi possível carregar os dados climáticos. Verifique seu CEP ou cidade no perfil.');
-            }
-            
-            setWeatherData(null);
+            console.log('🌤️ Carregando dados do clima para CEP:', profileSettings.cep);
 
+            // CORRIGIDO: Usar getWeatherByCEP ao invés de getWeatherByCity
+            const result = await weatherController.getWeatherByCEP(profileSettings.cep);
+
+            if (result.success) {
+                setWeatherData(result.data);
+                console.log('✅ Dados do clima carregados:', result.data);
+            } else {
+                console.error('❌ Erro ao carregar clima:', result.error);
+                
+                // FALLBACK: Tentar buscar pela cidade do endereço
+                if (profileSettings.cidade) {
+                    console.log('🔄 Tentando buscar por cidade:', profileSettings.cidade);
+                    const cityResult = await weatherController.getWeatherByCity(profileSettings.cidade);
+                    
+                    if (cityResult.success) {
+                        setWeatherData(cityResult.data);
+                        console.log('✅ Clima carregado por cidade');
+                    } else {
+                        setWeatherData(null);
+                    }
+                } else {
+                    setWeatherData(null);
+                }
+            }
         } catch (error) {
-            console.error('❌ Erro geral ao carregar clima:', error);
-            setWeatherError('Erro ao carregar dados do clima. Tente novamente.');
+            console.error('❌ Erro ao carregar dados do clima:', error);
+            setWeatherData(null);
         } finally {
             setLoadingWeather(false);
         }
     };
 
- // NOVA FUNÇÃO: Buscar endereço por CEP com preenchimento automático
-const handleCEPChange = async (inputValue) => {
+ // NOVA FUNÇÃO: Buscar endereço por CEP com preenchimento automático (CORRIGIDA)
+const handleCEPChange = async (e) => {
+    const inputValue = e.target.value;
+    
+    // Aplicar máscara enquanto digita
+    const maskedValue = applyCEPMask(inputValue);
+    
+    // Atualizar o campo imediatamente (permite edição)
+    setProfileSettings(prevSettings => ({
+        ...prevSettings,
+        cep: maskedValue
+    }));
+    
+    // Limpar erros anteriores
+    setCepError(null);
+    
+    // Extrair apenas números
     const cleanCEP = inputValue.replace(/\D/g, '');
     
+    // Se tiver 8 dígitos, buscar automaticamente
     if (cleanCEP.length === 8) {
         try {
             setLoadingCEP(true);
-            setCepError(null);
+            
+            console.log('🔍 Buscando CEP:', cleanCEP);
             
             // Usar AddressController
             const result = await addressController.searchAddressByCEP(cleanCEP);
             
             if (result.success) {
                 const addressData = result.data;
+                
+                // Preencher campos automaticamente
                 setProfileSettings(prevSettings => ({
                     ...prevSettings,
-                    cep: addressData.cep,
+                    cep: addressData.cep, // CEP formatado
                     endereco: addressData.endereco,
                     cidade: addressData.cidade,
                     estado: addressData.estado
                 }));
                 
                 console.log('✅ CEP encontrado:', addressData);
+                
+                // Feedback visual de sucesso
+                setCepError(null);
             } else {
-                setCepError(result.error);
+                setCepError(result.error || 'CEP não encontrado');
                 console.log('❌ CEP não encontrado:', result.error);
             }
         } catch (error) {
@@ -231,10 +243,17 @@ const handleCEPChange = async (inputValue) => {
         } finally {
             setLoadingCEP(false);
         }
+    } else if (cleanCEP.length > 8) {
+        // Limitar a 8 dígitos
+        const limitedValue = applyCEPMask(cleanCEP.substring(0, 8));
+        setProfileSettings(prevSettings => ({
+            ...prevSettings,
+            cep: limitedValue
+        }));
     }
 };
 
-    // Carregar dados do usuário quando logar (existente, mantém igual)
+    // Carregar dados do usuário quando logar (existente)
     useEffect(() => {
         const loadUserData = async () => {
             if (currentUser?.uid) {
@@ -317,6 +336,101 @@ const handleCEPChange = async (inputValue) => {
             console.error('Erro ao fazer logout:', error);
         }
     };
+
+    /**
+     * Verificação automática de tarefas ao fazer login
+     * Roda apenas 1x por dia para não sobrecarregar
+     */
+    useEffect(() => {
+        const checkTasksAutomatically = async () => {
+            // Só executa se:
+            // 1. Usuário está logado
+            // 2. Perfil carregou
+            // 3. Não está mais carregando
+            // 4. Ainda não checou hoje
+            if (!currentUser?.uid || !profileSettings?.email || loading) {
+                return;
+            }
+
+            const today = new Date().toDateString();
+            const lastCheck = localStorage.getItem('lastTaskNotificationCheck');
+
+            // Se já checou hoje, não faz nada
+            if (lastCheck === today) {
+                console.log('✅ Verificação de tarefas já foi feita hoje');
+                return;
+            }
+
+            // Aguardar 5 segundos após o login para não interferir no carregamento
+            const timeoutId = setTimeout(async () => {
+                try {
+                    console.log('🔄 Verificação automática de tarefas iniciada...');
+                    setNotificationStatus('Verificando tarefas...');
+
+                    const result = await checkAndSendTaskReminders(currentUser.uid);
+
+                    if (result.success) {
+                        if (result.count > 0) {
+                            console.log(`✅ ${result.count} email(s) de lembrete enviado(s)`);
+                            setNotificationStatus(`✅ ${result.count} lembrete(s) enviado(s) por email`);
+                            
+                            // Mostrar notificação visual (opcional)
+                            showNotificationToast(
+                                `📧 ${result.count} lembrete(s) de tarefas enviado(s) para ${result.email}`,
+                                'success'
+                            );
+                        } else {
+                            console.log('ℹ️ Nenhuma tarefa vencendo nas próximas 24h');
+                            setNotificationStatus(null);
+                        }
+
+                        // Marca que já checou hoje
+                        localStorage.setItem('lastTaskNotificationCheck', today);
+                        setLastNotificationCheck(today);
+
+                    } else {
+                        console.error('❌ Erro ao verificar tarefas:', result.error);
+                        setNotificationStatus(`❌ Erro: ${result.error}`);
+                    }
+
+                } catch (error) {
+                    console.error('❌ Erro na verificação automática:', error);
+                    setNotificationStatus(null);
+                }
+            }, 5000); // 5 segundos de delay
+
+            // Cleanup: cancela o timeout se o componente desmontar
+            return () => clearTimeout(timeoutId);
+        };
+
+        checkTasksAutomatically();
+
+    }, [currentUser?.uid, profileSettings?.email, loading]); // Dependências
+
+    // Carregar tarefas (se não existir)
+    const loadTasks = async () => {
+        if (!currentUser?.uid) return;
+        
+        try {
+            setLoadingTasks(true);
+            const result = await taskController.getTasks(currentUser.uid);
+            
+            if (result.success) {
+                setTasks(result.data || []);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar tarefas:', error);
+        } finally {
+            setLoadingTasks(false);
+        }
+    };
+
+    // Carregar tarefas quando a página de tarefas for acessada
+    useEffect(() => {
+        if (currentUser?.uid && currentPage === 'tasks') {
+            loadTasks();
+        }
+    }, [currentUser?.uid, currentPage]);
 
     if (!userLoggedIn) {
         return <Navigate to="/" replace={true} />;
@@ -470,9 +584,144 @@ const handleCEPChange = async (inputValue) => {
         alert(`Conectando com ${platform}...`);
     };
 
+    /**
+     * Mostrar notificação toast (visual feedback)
+     */
+    const showNotificationToast = (message, type = 'info') => {
+        const toast = document.createElement('div');
+        toast.className = styles.notificationToast;
+        toast.setAttribute('data-type', type);
+        toast.innerHTML = `
+            <div class="${styles.toastContent}">
+                <span class="${styles.toastIcon}">
+                    ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+                </span>
+                <p class="${styles.toastMessage}">${message}</p>
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Animação de entrada
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        }, 100);
+
+        // Remover após 5 segundos
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 5000);
+    };
+
+    /**
+     * Função manual para testar emails (para botão)
+     */
+    const handleTestEmailNotification = async () => {
+        if (!currentUser?.uid) {
+            alert('❌ Usuário não identificado');
+            return;
+        }
+
+        if (!profileSettings?.email) {
+            alert('❌ Email não encontrado no perfil');
+            return;
+        }
+
+        try {
+            setNotificationStatus('Enviando email de teste...');
+
+            const result = await sendTestEmail(
+                profileSettings.email,
+                profileSettings.nomeCompleto || userName
+            );
+
+            if (result.success) {
+                alert(`✅ Email de teste enviado para ${profileSettings.email}\n\nVerifique sua caixa de entrada!`);
+                setNotificationStatus('✅ Email de teste enviado!');
+                
+                showNotificationToast(
+                    `📧 Email de teste enviado para ${profileSettings.email}`,
+                    'success'
+                );
+            } else {
+                alert(`❌ Erro ao enviar email: ${result.error}`);
+                setNotificationStatus(`❌ Erro: ${result.error}`);
+            }
+
+        } catch (error) {
+            console.error('Erro ao enviar email de teste:', error);
+            alert('❌ Erro ao enviar email. Verifique o console.');
+            setNotificationStatus(null);
+        }
+    };
+
+    /**
+     * Verificar tarefas manualmente (APENAS MOSTRA INFO - NÃO ENVIA EMAIL)
+     */
+    const handleManualTaskCheck = async () => {
+        if (!currentUser?.uid) {
+            alert('❌ Usuário não identificado');
+            return;
+        }
+
+        try {
+            setNotificationStatus('Verificando tarefas...');
+
+            // NOVA FUNÇÃO: Apenas verifica, NÃO envia email
+            const result = await checkTasksWithoutEmail(currentUser.uid);
+
+            if (result.success) {
+                // Montar mensagem detalhada
+                let alertMessage = result.message + '\n\n';
+
+                if (result.tasks && result.tasks.length > 0) {
+                    alertMessage += '📋 TAREFAS ENCONTRADAS:\n\n';
+                    result.tasks.forEach((task, index) => {
+                        const status = task.notificada ? '✅ Notificada' : '⏳ Pendente';
+                        alertMessage += `${index + 1}. ${task.titulo}\n`;
+                        alertMessage += `   📅 Vence: ${formatDateBR(task.dataLimite)}\n`;
+                        alertMessage += `   🎯 Prioridade: ${task.prioridade.toUpperCase()}\n`;
+                        alertMessage += `   ${status}\n\n`;
+                    });
+
+                    if (result.pendingCount > 0) {
+                        alertMessage += `\n💡 Dica: O sistema enviará emails automaticamente quando você fizer login.\n`;
+                        alertMessage += `Ou use "Enviar Email de Teste" para testar o sistema agora.`;
+                    }
+                }
+
+                alert(alertMessage);
+                setNotificationStatus(result.message);
+
+            } else {
+                alert(`❌ Erro: ${result.error}`);
+                setNotificationStatus(`❌ Erro: ${result.error}`);
+            }
+
+        } catch (error) {
+            console.error('Erro ao verificar tarefas:', error);
+            alert('❌ Erro ao verificar tarefas. Verifique o console.');
+            setNotificationStatus(null);
+        }
+    };
+
+    /**
+     * Formatar data para exibição (DD/MM/YYYY)
+     */
+    const formatDateBR = (dateString) => {
+        if (!dateString) return 'N/A';
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    };
+
     return (
-        <div className={`${styles.homeWrapper} ${theme === 'dark' ? styles.darkTheme : ''}`}>
-            <div className={`${styles.container} ${theme === 'dark' ? styles.darkTheme : ''}`}>
+        <div className={styles.homeWrapper} data-theme={theme}>
+            <div className={styles.container}>
                 {/* Sidebar - permanece igual */}
                 <nav className={styles.sidebar}>
                     <div className={styles.logoContainer}>
@@ -515,7 +764,7 @@ const handleCEPChange = async (inputValue) => {
                                 className={`${styles.navigationButton} ${currentPage === 'analises' ? styles.active : ''}`}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={styles.navigationIcon}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 012 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
                                 Análises
                             </button>
@@ -573,24 +822,145 @@ const handleCEPChange = async (inputValue) => {
 
                     {/* Page content */}
                     <section className={styles.pageContent}>
-                        {/* Dashboard - permanece igual */}
+                        {/* Dashboard - COM DESTAQUE PARA CHATBOT */}
                         {currentPage === 'dashboard' && (
                             <div className={styles.dashboardContainer}>
-                                <h1 className={styles.welcomeTitle}>Olá {userName}, Boa tarde!</h1>
+                                <h1 className={styles.welcomeTitle}>
+                                    🌾 Bem-vindo ao IAgro, {userName}!
+                                </h1>
                                 <div className={styles.dashboardCard}>
-                                    🚀 **Bem-vindo ao IAgro!**
-                                    
-                                    📊 **Status da sua conta:**
-                                    - Dados salvos: {historicoData.length} registros
-                                    - Última atualização: {historicoData.length > 0 ? historicoData[0].data : 'Nenhum dado registrado'}
-                                    
-                                    🌱 **Próximos passos:**
-                                    1. Adicione seus dados agronômicos em "Meus Dados"
-                                    2. Acompanhe o histórico em "Histórico"
-                                    3. Configure seu perfil em "Perfil"
-                                    
-                                    📈 **Dica:** Mantenha seus dados sempre atualizados para melhores análises!
+                                    <div className={styles.dashboardSection}>
+                                        <h3>🌾 O que é o IAgro?</h3>
+                                        <p>
+                                            O IAgro é sua plataforma completa de gestão agrícola inteligente. 
+                                            Aqui você pode:
+                                        </p>
+                                        <ul>
+                                            <li>📊 Analisar sua produtividade agrícola</li>
+                                            <li>💧 Calcular necessidades de irrigação</li>
+                                            <li>📈 Visualizar gráficos e estatísticas</li>
+                                            <li>🤖 Conversar com nosso assistente IA especializado</li>
+                                            <li>📋 Gerenciar suas tarefas e lembretes</li>
+                                            <li>🌤️ Acompanhar condições climáticas</li>
+                                            <li>📈 Monitorar ações do agronegócio</li>
+                                        </ul>
+                                    </div>
+
+                                    {/* Resto do conteúdo do dashboard existente... */}
+                                    <div className={styles.dashboardSection}>
+                                        <h3>🚀 Como Começar?</h3>
+                                        <ol>
+                                            <li>Complete seu <strong>Perfil</strong> com suas informações</li>
+                                            <li>Adicione seus dados em <strong>Meus Dados</strong></li>
+                                            <li>Crie tarefas e lembretes importantes</li>
+                                            <li>Explore as <strong>Análises</strong> e gráficos</li>
+                                            <li>Use o <strong>Assistente IA</strong> para tirar dúvidas</li>
+                                        </ol>
+                                    </div>
+
+                                    {/* ... resto do conteúdo ... */}
                                 </div>
+
+                                {/* Card de Assistente IA (existente) */}
+                                <div className={styles.aiAssistantCard}>
+                                    <div className={styles.aiAssistantHeader}>
+                                        <div className={styles.aiAssistantIcon}>🤖</div>
+                                        <div>
+                                            <h2>Assistente IA Agronômico</h2>
+                                            <p>Seu consultor agrícola pessoal disponível 24/7</p>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.aiAssistantContent}>
+                                        <p>💬 <strong>Converse comigo sobre:</strong></p>
+                                        <div className={styles.aiCapabilities}>
+                                            <div className={styles.aiCapability}>
+                                                <span className={styles.aiCapabilityIcon}>🌾</span>
+                                                <div>
+                                                    <strong>Recomendações de Cultivo</strong>
+                                                    <p>Descubra quais culturas são ideais para sua região e clima</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className={styles.aiCapability}>
+                                                <span className={styles.aiCapabilityIcon}>📊</span>
+                                                <div>
+                                                    <strong>Análise de Histórico</strong>
+                                                    <p>Insights baseados nos seus {historicoData.length} registros salvos</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className={styles.aiCapability}>
+                                                <span className={styles.aiCapabilityIcon}>☀️</span>
+                                                <div>
+                                                    <strong>Alertas Climáticos</strong>
+                                                    <p>Interpretação das condições meteorológicas para suas atividades</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className={styles.aiCapability}>
+                                                <span className={styles.aiCapabilityIcon}>💰</span>
+                                                <div>
+                                                    <strong>Otimização de Custos</strong>
+                                                    <p>Sugestões para reduzir despesas e aumentar rentabilidade</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button 
+                                            className={styles.openChatButton}
+                                            onClick={() => {
+                                                // O botão flutuante será visível, mas vamos dar um destaque
+                                                const floatingButton = document.querySelector(`.${styles.floatingButton}`);
+                                                if (floatingButton) {
+                                                    floatingButton.style.animation = 'pulse 0.5s ease-in-out 3';
+                                                    floatingButton.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                                                }
+                                            }}
+                                        >
+                                            💬 Abrir Assistente (clique no botão flutuante →)
+                                        </button>
+
+                                        <div className={styles.aiQuickStart}>
+                                            <p><strong>🎯 Perguntas rápidas para começar:</strong></p>
+                                            <ul>
+                                                <li>"Qual a melhor época para plantar soja na minha região?"</li>
+                                                <li>"Analise meu histórico de plantio dos últimos 6 meses"</li>
+                                                <li>"Como está o clima hoje para aplicação de defensivos?"</li>
+                                                <li>"Quais culturas têm melhor rentabilidade atualmente?"</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Estatísticas Rápidas */}
+                                {historicoData.length > 0 && (
+                                    <div className={styles.quickStats}>
+                                        <div className={styles.statCard}>
+                                            <span className={styles.statIcon}>📈</span>
+                                            <div>
+                                                <strong>{historicoData.length}</strong>
+                                                <p>Registros Totais</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className={styles.statCard}>
+                                            <span className={styles.statIcon}>🌾</span>
+                                            <div>
+                                                <strong>{new Set(historicoData.map(item => item.cultura)).size}</strong>
+                                                <p>Culturas Diferentes</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className={styles.statCard}>
+                                            <span className={styles.statIcon}>📅</span>
+                                            <div>
+                                                <strong>{historicoData[0]?.data || 'N/A'}</strong>
+                                                <p>Última Atividade</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -708,225 +1078,240 @@ const handleCEPChange = async (inputValue) => {
                             </div>
                         )}
 
-                        {/* ANÁLISES COM CLIMA REAL */}
+                        {/* ANÁLISES COM CLIMA + GRÁFICOS */}
                         {currentPage === 'analises' && (
-                            <div className={styles.analyticsContainer}>
-                                <h2 className={styles.formTitle}>Análises Agronômicas</h2>
-                                <div className={styles.analyticsGrid}>
-                                    <section className={styles.analyticsSection}>
-                                        <h3 className={styles.sectionTitle}>Condições Climáticas</h3>
-                                        
-                                        {loadingWeather ? (
-                                            <div className={styles.loadingContainer}>
-                                                <div className={styles.loadingSpinner}>
-                                                    <div className={styles.spinner}></div>
-                                                    <p>Carregando dados do clima...</p>
+                            <div className={styles.pageContent}>
+                                <div className={styles.analyticsContainer}>
+                                    <h2 className={styles.formTitle}>Análises Agronômicas</h2>
+                                    <div className={styles.analyticsGrid}>
+                                        <section className={styles.analyticsSection}>
+                                            <h3 className={styles.sectionTitle}>Condições Climáticas</h3>
+                                            
+                                            {loadingWeather ? (
+                                                <div className={styles.loadingContainer}>
+                                                    <div className={styles.loadingSpinner}>
+                                                        <div className={styles.spinner}></div>
+                                                        <p>Carregando dados do clima...</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ) : weatherError ? (
-                                            <div className={styles.weatherError}>
-                                                <p>🌍 {weatherError}</p>
-                                                {weatherError.includes('preencha') && (
+                                            ) : weatherError ? (
+                                                <div className={styles.weatherError}>
+                                                    <p>🌍 {weatherError}</p>
+                                                    {weatherError.includes('preencha') && (
+                                                        <button 
+                                                            onClick={() => goToPage('perfil')}
+                                                            className={styles.profileLinkButton}
+                                                        >
+                                                            📍 Ir para Perfil
+                                                        </button>
+                                                    )}
+                                                    <button 
+                                                        onClick={loadWeatherData}
+                                                        className={styles.refreshButton}
+                                                    >
+                                                        🔄 Tentar novamente
+                                                    </button>
+                                                </div>
+                                            ) : weatherData ? (
+                                                <div className={styles.weatherInfo}>
+                                                    <div className={styles.weatherHeader}>
+                                                        <img 
+                                                            src={getWeatherIcon(weatherData.tempIcon)}
+                                                            alt={weatherData.description}
+                                                            className={styles.weatherIcon}
+                                                        />
+                                                        <div className={styles.weatherMainInfo}>
+                                                            <h4>{weatherData.city}, {weatherData.country}</h4>
+                                                            <p className={styles.weatherTemp}>
+                                                                {formatTemperature(weatherData.temp)}
+                                                            </p>
+                                                            <p className={styles.weatherDescription}>
+                                                                {weatherData.description.charAt(0).toUpperCase() + weatherData.description.slice(1)}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className={styles.weatherDetails}>
+                                                        <div className={styles.weatherDetailItem}>
+                                                            <span>🌡️ Máxima:</span>
+                                                            <span>{formatTemperature(weatherData.tempMax)}</span>
+                                                        </div>
+                                                        <div className={styles.weatherDetailItem}>
+                                                            <span>🌡️ Mínima:</span>
+                                                            <span>{formatTemperature(weatherData.tempMin)}</span>
+                                                        </div>
+                                                        <div className={styles.weatherDetailItem}>
+                                                            <span>💧 Umidade:</span>
+                                                            <span>{weatherData.humidity}%</span>
+                                                        </div>
+                                                        <div className={styles.weatherDetailItem}>
+                                                            <span>🌪️ Vento:</span>
+                                                            <span>{weatherData.windSpeed.toFixed(1)} m/s</span>
+                                                        </div>
+                                                        <div className={styles.weatherDetailItem}>
+                                                            <span>👁️ Visibilidade:</span>
+                                                            <span>{weatherData.visibility} km</span>
+                                                        </div>
+                                                        <div className={styles.weatherDetailItem}>
+                                                            <span>🌅 Pressão:</span>
+                                                            <span>{weatherData.pressure} hPa</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Alertas inteligentes em seção separada */}
+                                                    {weatherData && (
+                                                        <div className={styles.weatherAlertsSection}>
+                                                            <h4 className={styles.weatherAlertsTitle}>
+                                                                Alertas Agronômicos
+                                                            </h4>
+                                                            <div className={styles.weatherAlerts}>
+                                                                {weatherData.humidity > 80 && (
+                                                                    <div className={styles.weatherAlert} data-type="humidity">
+                                                                        <strong>Alta Umidade:</strong> {weatherData.humidity}% pode favorecer doenças fúngicas. Considere aplicação preventiva de fungicidas.
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                {weatherData.windSpeed > 5 && (
+                                                                    <div className={styles.weatherAlert} data-type="wind">
+                                                                        <strong>Ventos Fortes:</strong> {weatherData.windSpeed.toFixed(1)} m/s - evite pulverizações para melhor eficiência dos produtos.
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                {weatherData.temp > 35 && (
+                                                                    <div className={styles.weatherAlert} data-type="temperature-high">
+                                                                        <strong>Temperatura Elevada:</strong> Risco de stress térmico nas plantas. Aumente a frequência de irrigação se possível.
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                {weatherData.temp < 5 && (
+                                                                    <div className={styles.weatherAlert} data-type="temperature-low">
+                                                                        <strong>Risco de Geada:</strong> Proteja cultivos sensíveis e monitore temperaturas durante a madrugada.
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                {weatherData.humidity < 30 && (
+                                                                    <div className={styles.weatherAlert} data-type="humidity">
+                                                                        <strong>Baixa Umidade:</strong> {weatherData.humidity}% - considere irrigação adicional para manter solo úmido.
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                {/* Alerta quando condições estão ideais */}
+                                                                {weatherData.humidity >= 30 && weatherData.humidity <= 80 && 
+                                                                 weatherData.temp >= 15 && weatherData.temp <= 30 && 
+                                                                 weatherData.windSpeed <= 5 && (
+                                                                    <div className={styles.weatherAlert} data-type="humidity">
+                                                                        <strong>Condições Ideais:</strong> Temperatura, umidade e vento em níveis adequados para atividades agrícolas.
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    <button 
+                                                        onClick={loadWeatherData}
+                                                        className={styles.refreshButton}
+                                                        style={{ marginTop: '1rem' }}
+                                                    >
+                                                        🔄 Atualizar dados
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className={styles.weatherError}>
+                                                    <p>🌍 Para ver as condições climáticas, preencha sua cidade no perfil.</p>
                                                     <button 
                                                         onClick={() => goToPage('perfil')}
                                                         className={styles.profileLinkButton}
                                                     >
                                                         📍 Ir para Perfil
                                                     </button>
-                                                )}
-                                                <button 
-                                                    onClick={loadWeatherData}
-                                                    className={styles.refreshButton}
-                                                >
-                                                    🔄 Tentar novamente
-                                                </button>
-                                            </div>
-                                        ) : weatherData ? (
-                                            <div className={styles.weatherInfo}>
-                                                <div className={styles.weatherHeader}>
-                                                    <img 
-                                                        src={getWeatherIcon(weatherData.tempIcon)}
-                                                        alt={weatherData.description}
-                                                        className={styles.weatherIcon}
-                                                    />
-                                                    <div className={styles.weatherMainInfo}>
-                                                        <h4>{weatherData.city}, {weatherData.country}</h4>
-                                                        <p className={styles.weatherTemp}>
-                                                            {formatTemperature(weatherData.temp)}
-                                                        </p>
-                                                        <p className={styles.weatherDescription}>
-                                                            {weatherData.description.charAt(0).toUpperCase() + weatherData.description.slice(1)}
-                                                        </p>
-                                                    </div>
                                                 </div>
-                                                
-                                                <div className={styles.weatherDetails}>
-                                                    <div className={styles.weatherDetailItem}>
-                                                        <span>🌡️ Máxima:</span>
-                                                        <span>{formatTemperature(weatherData.tempMax)}</span>
-                                                    </div>
-                                                    <div className={styles.weatherDetailItem}>
-                                                        <span>🌡️ Mínima:</span>
-                                                        <span>{formatTemperature(weatherData.tempMin)}</span>
-                                                    </div>
-                                                    <div className={styles.weatherDetailItem}>
-                                                        <span>💧 Umidade:</span>
-                                                        <span>{weatherData.humidity}%</span>
-                                                    </div>
-                                                    <div className={styles.weatherDetailItem}>
-                                                        <span>🌪️ Vento:</span>
-                                                        <span>{weatherData.windSpeed.toFixed(1)} m/s</span>
-                                                    </div>
-                                                    <div className={styles.weatherDetailItem}>
-                                                        <span>👁️ Visibilidade:</span>
-                                                        <span>{weatherData.visibility} km</span>
-                                                    </div>
-                                                    <div className={styles.weatherDetailItem}>
-                                                        <span>🌅 Pressão:</span>
-                                                        <span>{weatherData.pressure} hPa</span>
-                                                    </div>
-                                                </div>
+                                            )}
+                                        </section>
 
-                                                {/* Alertas inteligentes em seção separada */}
-                                                {weatherData && (
-                                                    <div className={styles.weatherAlertsSection}>
-                                                        <h4 className={styles.weatherAlertsTitle}>
-                                                            Alertas Agronômicos
-                                                        </h4>
-                                                        <div className={styles.weatherAlerts}>
-                                                            {weatherData.humidity > 80 && (
-                                                                <div className={styles.weatherAlert} data-type="humidity">
-                                                                    <strong>Alta Umidade:</strong> {weatherData.humidity}% pode favorecer doenças fúngicas. Considere aplicação preventiva de fungicidas.
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {weatherData.windSpeed > 5 && (
-                                                                <div className={styles.weatherAlert} data-type="wind">
-                                                                    <strong>Ventos Fortes:</strong> {weatherData.windSpeed.toFixed(1)} m/s - evite pulverizações para melhor eficiência dos produtos.
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {weatherData.temp > 35 && (
-                                                                <div className={styles.weatherAlert} data-type="temperature-high">
-                                                                    <strong>Temperatura Elevada:</strong> Risco de stress térmico nas plantas. Aumente a frequência de irrigação se possível.
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {weatherData.temp < 5 && (
-                                                                <div className={styles.weatherAlert} data-type="temperature-low">
-                                                                    <strong>Risco de Geada:</strong> Proteja cultivos sensíveis e monitore temperaturas durante a madrugada.
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {weatherData.humidity < 30 && (
-                                                                <div className={styles.weatherAlert} data-type="humidity">
-                                                                    <strong>Baixa Umidade:</strong> {weatherData.humidity}% - considere irrigação adicional para manter solo úmido.
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {/* Alerta quando condições estão ideais */}
-                                                            {weatherData.humidity >= 30 && weatherData.humidity <= 80 && 
-                                                             weatherData.temp >= 15 && weatherData.temp <= 30 && 
-                                                             weatherData.windSpeed <= 5 && (
-                                                                <div className={styles.weatherAlert} data-type="humidity">
-                                                                    <strong>Condições Ideais:</strong> Temperatura, umidade e vento em níveis adequados para atividades agrícolas.
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                
-                                                <button 
-                                                    onClick={loadWeatherData}
-                                                    className={styles.refreshButton}
-                                                    style={{ marginTop: '1rem' }}
-                                                >
-                                                    🔄 Atualizar dados
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className={styles.weatherError}>
-                                                <p>🌍 Para ver as condições climáticas, preencha sua cidade no perfil.</p>
-                                                <button 
-                                                    onClick={() => goToPage('perfil')}
-                                                    className={styles.profileLinkButton}
-                                                >
-                                                    📍 Ir para Perfil
-                                                </button>
-                                            </div>
-                                        )}
-                                    </section>
-
-                                    <section className={styles.analyticsSection}>
-                                        <h3 className={styles.sectionTitle}>Produtividade Mensal</h3>
-                                        <div className={styles.chartPlaceholder}>
-                                            <span>Gráfico de Produtividade</span>
-                                            <p>Em breve: análise baseada nos seus dados históricos</p>
-                                        </div>
-                                    </section>
+                                        <section className={styles.analyticsSection}>
+                                            <h3 className={styles.sectionTitle}>Produtividade Mensal</h3>
+                                            <ProductivityChartComponent historicoData={historicoData} />
+                                        </section>
+                                    </div>
                                 </div>
+                                
+                                {/* ========================================
+                                    SEÇÃO DE GRÁFICOS - TODOS JUNTOS
+                                   ======================================== */}
+                                
+                                {/* 1️⃣ Gráfico Principal: Produtividade e Custos */}
+                                <ProductivityChartComponent historicoData={historicoData} />
+                                
+                                {/* 2️⃣ Análise de Custos por Categoria */}
+                                <CostAnalysisChart historicoData={historicoData} />
+                                
+                                {/* 3️⃣ Distribuição de Atividades (Pizza) */}
+                                <ActivityDistributionChart historicoData={historicoData} />
+                                
+                                {/* 4️⃣ Comparação entre Culturas (Radar) */}
+                                <CropComparisonChart historicoData={historicoData} />
+                                
+                                {/* ========================================
+                                    SEÇÃO DE CALCULADORAS - APÓS GRÁFICOS
+                                   ======================================== */}
+                                
+                                {/* Calculadora de Produtividade */}
+                                <ProductivityCalculator />
+                                
+                                {/* Calculadora de Irrigação */}
+                                <IrrigationCalculator />
                             </div>
                         )}
 
                         {/* Histórico - permanece igual */}
                         {currentPage === 'historico' && (
-                            <div className={styles.historyContainer}>
-                                <h2 className={styles.formTitle}>Histórico de Atividades</h2>
-                                
-                                <form className={styles.filterForm} onSubmit={(e) => { e.preventDefault(); filterHistorico(); }}>
-                                    <div className={styles.filterGroup}>
-                                        <label className={styles.filterLabel}>Data inicial</label>
-                                        <input 
-                                            value={historicoFilters.dataInicial}
-                                            onChange={(e) => handleFilterChange('dataInicial', e.target.value)}
-                                            type="date" 
-                                            className={styles.filterInput}
-                                        />
-                                    </div>
-                                    <div className={styles.filterGroup}>
-                                        <label className={styles.filterLabel}>Data final</label>
-                                        <input 
-                                            value={historicoFilters.dataFinal}
-                                            onChange={(e) => handleFilterChange('dataFinal', e.target.value)}
-                                            type="date" 
-                                            className={styles.filterInput}
-                                        />
-                                    </div>
-                                    <div className={styles.filterGroup}>
-                                        <label className={styles.filterLabel}>Tipo</label>
-                                        <select 
-                                            value={historicoFilters.tipo}
-                                            onChange={(e) => handleFilterChange('tipo', e.target.value)}
-                                            className={styles.filterInput}
-                                        >
-                                            <option value="Todos">Todos</option>
-                                            <option value="Plantio">Plantio</option>
-                                            <option value="Colheita">Colheita</option>
-                                            <option value="Adubação">Adubação</option>
-                                            <option value="Aplicação de Defensivos">Defensivos</option>
-                                            <option value="Controle de Pragas">Controle de Pragas</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" className={styles.filterButton}>
-                                        FILTRAR
-                                    </button>
-                                </form>
-
-                                {loadingHistorico ? (
-                                    <div className={styles.loadingContainer}>
-                                        <div className={styles.loadingSpinner}>
-                                            <div className={styles.spinner}></div>
-                                            <p>Carregando histórico...</p>
+                            <div className={styles.pageContent}>
+                                <div className={styles.historyContainer}>
+                                    <h2 className={styles.formTitle}>📊 Histórico de Produtividade</h2>
+                                    
+                                    {/* Filtros existentes... */}
+                                    <form className={styles.filterForm} onSubmit={(e) => { e.preventDefault(); filterHistorico(); }}>
+                                        <div className={styles.filterGroup}>
+                                            <label className={styles.filterLabel}>Data inicial</label>
+                                            <input 
+                                                value={historicoFilters.dataInicial}
+                                                onChange={(e) => handleFilterChange('dataInicial', e.target.value)}
+                                                type="date" 
+                                                className={styles.filterInput}
+                                            />
                                         </div>
-                                    </div>
-                                ) : (
-                                    <>
-                                        {filteredHistoricoData.length === 0 ? (
-                                            <div className={styles.emptyState}>
-                                                <p>📝 Nenhum dado encontrado.</p>
-                                                <p>Comece adicionando dados agronômicos em "Meus Dados"!</p>
-                                            </div>
-                                        ) : (
+                                        <div className={styles.filterGroup}>
+                                            <label className={styles.filterLabel}>Data final</label>
+                                            <input 
+                                                value={historicoFilters.dataFinal}
+                                                onChange={(e) => handleFilterChange('dataFinal', e.target.value)}
+                                                type="date" 
+                                                className={styles.filterInput}
+                                            />
+                                        </div>
+                                        <div className={styles.filterGroup}>
+                                            <label className={styles.filterLabel}>Tipo</label>
+                                            <select 
+                                                value={historicoFilters.tipo}
+                                                onChange={(e) => handleFilterChange('tipo', e.target.value)}
+                                                className={styles.filterInput}
+                                            >
+                                                <option value="Todos">Todos</option>
+                                                <option value="Plantio">Plantio</option>
+                                                <option value="Colheita">Colheita</option>
+                                                <option value="Adubação">Adubação</option>
+                                                <option value="Aplicação de Defensivos">Defensivos</option>
+                                                <option value="Controle de Pragas">Controle de Pragas</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" className={styles.filterButton}>
+                                            FILTRAR
+                                        </button>
+                                    </form>
+
+                                    {/* Tabela de histórico existente... */}
+                                    {!loadingHistorico && filteredHistoricoData.length > 0 && (
+                                        <>
                                             <table className={styles.table}>
                                                 <thead className={styles.tableHeader}>
                                                     <tr>
@@ -947,20 +1332,51 @@ const handleCEPChange = async (inputValue) => {
                                                     ))}
                                                 </tbody>
                                             </table>
-                                        )}
-                                        
-                                        <div className={styles.historicoSummary}>
-                                            <p>📊 Total de registros: {filteredHistoricoData.length} de {historicoData.length}</p>
-                                            <button 
-                                                onClick={loadHistoricoData}
-                                                className={styles.refreshButton}
-                                                disabled={loadingHistorico}
-                                            >
-                                                🔄 Atualizar
-                                            </button>
+
+                                            {/* ✅ BOTÃO DE EXPORTAÇÃO - SEM SEÇÃO EXTRA */}
+                                            <div className={styles.exportSection}>
+                                                <div className={styles.exportInfo}>
+                                                    <span className={styles.exportIcon}>📄</span>
+                                                    <div>
+                                                        <h3>Exportar Histórico</h3>
+                                                        <p>Baixe todos os {filteredHistoricoData.length} registros de produtividade em PDF</p>
+                                                    </div>
+                                                </div>
+                                                <PDFExportButton 
+                                                    type="productivity"
+                                                    data={filteredHistoricoData}
+                                                    userName={profileSettings.nomeCompleto || userName}
+                                                    label="📥 EXPORTAR HISTÓRICO EM PDF"
+                                                    className={styles.exportButtonLarge}
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* Estado vazio existente... */}
+                                    {!loadingHistorico && filteredHistoricoData.length === 0 && (
+                                        <div className={styles.emptyState}>
+                                            <p>📭 Nenhum registro encontrado</p>
+                                            <p>Adicione dados na aba "Meus dados" para visualizar o histórico</p>
                                         </div>
-                                    </>
-                                )}
+                                    )}
+
+                                    {/* Loading existente... */}
+                                    {loadingHistorico && (
+                                        <div className={styles.loadingContainer}>
+                                            <div className={styles.loadingSpinner}>
+                                                <div className={styles.spinner}></div>
+                                                <p>Carregando histórico...</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* ✅ TaskList PERMANECE AQUI (já existente) */}
+                                <TaskList 
+                                    userId={currentUser?.uid} 
+                                    taskController={taskController}
+                                />
                             </div>
                         )}
 
@@ -1058,21 +1474,27 @@ const handleCEPChange = async (inputValue) => {
                                     <div className={styles.profileSection}>
                                         <h3 className={styles.sectionTitle}>Endereço</h3>
                                         <div className={styles.profileGrid}>
-                                            {/* CEP com busca automática */}
+                                            {/* CEP com busca automática - CORRIGIDO */}
                                             <div className={styles.profileField}>
                                                 <label className={styles.profileLabel}>
-                                                    CEP {loadingCEP && '(Buscando...)'}
-                                                    {cepError && <span className={styles.errorText}> - {cepError}</span>}
+                                                    CEP 
+                                                    {loadingCEP && <span style={{ color: '#3b82f6' }}> (Buscando...)</span>}
+                                                    {cepError && <span className={styles.errorText}> ❌ {cepError}</span>}
                                                 </label>
                                                 <input 
                                                     value={profileSettings.cep || ''}
-                                                    onChange={(e) => handleCEPChange(e.target.value)}
+                                                    onChange={handleCEPChange}  // ✅ CORRIGIDO: onChange direto
                                                     type="text" 
-                                                    className={`${styles.profileInput} ${cepError ? styles.errorInput : ''}`}
+                                                    className={`${styles.profileInput} ${cepError ? styles.errorInput : ''} ${loadingCEP ? styles.loadingInput : ''}`}
                                                     placeholder="00000-000"
                                                     maxLength="9"
-                                                    disabled={loadingCEP}
+                                                    disabled={loadingCEP}  // ✅ Desabilita APENAS durante busca
                                                 />
+                                                {!loadingCEP && !cepError && profileSettings.cep?.length === 9 && (
+                                                    <span style={{ color: '#10b981', fontSize: '0.875rem', marginTop: '4px', display: 'block' }}>
+                                                        ✅ Endereço carregado
+                                                    </span>
+                                                )}
                                             </div>
                                             
                                             {/* Endereço - preenchido automaticamente */}
@@ -1195,6 +1617,73 @@ const handleCEPChange = async (inputValue) => {
                                         </div>
                                     </div>
 
+                                    {/* Seção de Notificações por Email */}
+                                    <div className={styles.profileSection}>
+                                        <h3 className={styles.sectionTitle}>Notificações por Email</h3>
+                                        <div className={styles.notificationSettings}>
+                                            <div className={styles.notificationInfo}>
+                                                <p>
+                                                    <strong>📧 Sistema de Lembretes Automáticos</strong>
+                                                </p>
+                                                <p>
+                                                    Quando você faz login, o sistema verifica automaticamente se há tarefas 
+                                                    vencendo nas próximas 24 horas e envia um email com os lembretes.
+                                                </p>
+                                                <p>
+                                                    <strong>Email cadastrado:</strong> {profileSettings.email}
+                                                </p>
+                                                {lastNotificationCheck && (
+                                                    <p>
+                                                        <strong>Última verificação:</strong>{' '}
+                                                        {new Date(lastNotificationCheck).toLocaleDateString('pt-BR', {
+                                                            day: '2-digit',
+                                                            month: '2-digit',
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <div className={styles.notificationActions}>
+                                                <button 
+                                                    type="button"
+                                                    onClick={handleTestEmailNotification}
+                                                    className={styles.testEmailButton}
+                                                    disabled={!profileSettings.email}
+                                                    title="Envia 2 tarefas fictícias para testar o sistema de email"
+                                                >
+                                                    📧 Enviar Email de Teste
+                                                </button>
+
+                                                <button 
+                                                    type="button"
+                                                    onClick={handleManualTaskCheck}
+                                                    className={styles.checkTasksButton}
+                                                    title="Verifica quantas tarefas vencem em 24h (não envia email)"
+                                                >
+                                                    🔍 Verificar Tarefas Agora
+                                                </button>
+                                            </div>
+
+                                            <div className={styles.notificationHints}>
+                                                <p><strong>💡 Como funciona:</strong></p>
+                                                <ul>
+                                                    <li><strong>Verificar Tarefas:</strong> Mostra quantas tarefas vencem em 24h (sem enviar email)</li>
+                                                    <li><strong>Email de Teste:</strong> Envia 2 tarefas fictícias para testar o sistema</li>
+                                                    <li><strong>Automático:</strong> Ao fazer login, emails são enviados automaticamente</li>
+                                                </ul>
+                                            </div>
+
+                                            {notificationStatus && (
+                                                <div className={styles.notificationStatusInline}>
+                                                    {notificationStatus}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
                                     {/* Botões de Ação */}
                                     <div className={styles.profileActions}>
                                         <button 
@@ -1220,6 +1709,9 @@ const handleCEPChange = async (inputValue) => {
                 </main>
             </div>
             
+            {/* CHATBOT FLUTUANTE - Visível em TODAS as páginas */}
+            <ChatBot />
+
             {/* Footer com sugestões de compra */}
             <SuggestedItemsFooter />
         </div>
