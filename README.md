@@ -104,18 +104,18 @@ src/
 - [x] Histórico de atividades  
 - [x] Configurações personalizáveis  
 - [x] Dashboard com métricas de uso  
-- [x] Calculadora Inteligente de Produtividade e Irrigação 
-- [ ] Exportação de relatórios em PDF  
+- [x] Calculadora Inteligente de Produtividade
+- [x] Calculadora Inteligente de Irrigação 
+- [x] Exportação de relatórios em PDF  
 - [x] Lista de tarefas  
 - [x] Cadastro de Culturas, Insumos e Boas Práticas  
 - [x] Busca de endereço por CEP  
 - [x] Interação IA ↔ Usuário  
 - [x] Notificações por E-mail  
 - [x] Integração com APIs de previsão do tempo  
-- [ ] Backup de dados para cliente  
+- [x] Backup de dados para cliente  
 - [x] Atualização automática de recomendações  
-- [x] Relatórios de produtividade por período  
-- [ ] Exibição de ações valorizadas do mercado agrícola  
+- [x] Relatórios de produtividade por período   
 - [x] Recomendação de itens para compra  
 
 ---
