@@ -93,6 +93,32 @@ src/
 └── services/ # Integrações externas
 ```
 ---
+# Padrões de Projeto GoF Implementados
+
+## 1. Singleton (Conexão Firebase)
+**Arquivo:** `src/firebase/firebase.js`
+- Garante uma única instância da conexão com Firebase
+- Compartilhada em toda aplicação
+
+## 2. Factory Method (Templates de Email)
+**Arquivo:** `src/services/EmailNotificationService.js`
+- Cria diferentes tipos de templates baseado no tipo de tarefa
+- Método `createEmailTemplate(task)`
+
+## 3. Strategy (Busca de Clima)
+**Arquivo:** `src/controllers/WeatherController.js`
+- Diferentes estratégias: CEP, Cidade/Estado, Coordenadas
+- Método `getWeatherData(params)`
+
+## 4. Observer (Autenticação)
+**Arquivo:** `src/contexts/authContext/index.jsx`
+- Context API notifica componentes sobre mudanças de autenticação
+- `AuthProvider` e `useAuth()`
+
+## 5. Facade (Controllers)
+**Arquivo:** `src/controllers/TaskController.js`
+- Simplifica operações complexas do Firebase
+- Interface única para múltiplos serviços
 
 ## ✅ Checklist de Funcionalidades
 
