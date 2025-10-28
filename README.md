@@ -175,39 +175,5 @@ src/
       npm start
       Acesse em: http://localhost:3000
 ```
-    
-## 🏆 Padrões e Boas Práticas
-### 🎯 Orientação a Objetos
 
-Classes bem estruturadas
-
-Encapsulamento e validações integradas
-
-Uso de herança e composição
-
-### 🏛️ Padrão MVC
-
-Model: User, AgricultureData, WeatherData
-
-View: Componentes React reutilizáveis
-
-Controller: Lógica de negócio organizada
-
-### 🗄️ Padrão Repository
-
-Abstração da persistência de dados
-
-Separação clara entre Controllers e banco
-
-Repositórios específicos por entidade
-
-### 🔧 APIs Integradas
-
-OpenWeather API → dados climáticos em tempo real
-
-ViaCEP API → busca automática por CEP
-
-Firebase APIs → autenticação, banco de dados, notificações
-
----
 # 🌱 IAagro - Tecnologia a serviço da agricultura sustentável 🚀
