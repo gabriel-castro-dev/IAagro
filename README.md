@@ -71,19 +71,31 @@ O setor agrícola enfrenta desafios na adoção de tecnologia acessível. O IAag
 ## 🏛️ Arquitetura MVC + Repository Pattern
 ```
 src/
+├── authContext/
 ├── models/ # MODEL - Classes de dados
 │ ├── User.js
 │ ├── AgricultureData.js
 │ └── WeatherData.js
 │
-├── views/ # VIEW - Componentes React
-│ └── components/
+├── components/ # VIEW - Componentes React
+│ └── Home.jsx
+│ └── Home.module.css
+│ ├── auth/
+│ ├── Calculators/
+│ ├── Charts/
+│ ├── chatBot/
+│ ├── Footer/
+│ ├── PDF/
+│ ├── Tasks/
 │
 ├── controllers/ # CONTROLLER - Lógica de negócio
 │ ├── UserController.js
 │ ├── DataController.js
 │ ├── WeatherController.js
 │ └── AddressController.js
+│ └── ChatbotController.js
+│ └── PDFController.js
+│ └── TaskController.js
 │
 ├── repositories/ # REPOSITORY - Camada de persistência
 │ ├── UserRepository.js
@@ -91,8 +103,43 @@ src/
 │ └── WeatherRepository.js
 │
 └── services/ # Integrações externas
+│ ├── addressService.js
+│ ├── calculatorService.js
+│ └── chartDataService.js
+│ ├── chatbotService.js
+│ ├── emailNotificationService.js
+│ └── pdfService.js
+│ ├── profileService.js
+│ ├── taskService.js
+│ └── weatherService.js
 ```
 ---
+# Padrões de Projeto GoF Implementados
+
+## 1. Singleton (Conexão Firebase)
+**Arquivo:** `src/firebase/firebase.js`
+- Garante uma única instância da conexão com Firebase
+- Compartilhada em toda aplicação
+
+## 2. Factory Method (Templates de Email)
+**Arquivo:** `src/services/EmailNotificationService.js`
+- Cria diferentes tipos de templates baseado no tipo de tarefa
+- Método `createEmailTemplate(task)`
+
+## 3. Strategy (Busca de Clima)
+**Arquivo:** `src/controllers/WeatherController.js`
+- Diferentes estratégias: CEP, Cidade/Estado, Coordenadas
+- Método `getWeatherData(params)`
+
+## 4. Observer (Autenticação)
+**Arquivo:** `src/contexts/authContext/index.jsx`
+- Context API notifica componentes sobre mudanças de autenticação
+- `AuthProvider` e `useAuth()`
+
+## 5. Facade (Controllers)
+**Arquivo:** `src/controllers/TaskController.js`
+- Simplifica operações complexas do Firebase
+- Interface única para múltiplos serviços
 
 ## ✅ Checklist de Funcionalidades
 
@@ -149,39 +196,5 @@ src/
       npm start
       Acesse em: http://localhost:3000
 ```
-    
-## 🏆 Padrões e Boas Práticas
-### 🎯 Orientação a Objetos
 
-Classes bem estruturadas
-
-Encapsulamento e validações integradas
-
-Uso de herança e composição
-
-### 🏛️ Padrão MVC
-
-Model: User, AgricultureData, WeatherData
-
-View: Componentes React reutilizáveis
-
-Controller: Lógica de negócio organizada
-
-### 🗄️ Padrão Repository
-
-Abstração da persistência de dados
-
-Separação clara entre Controllers e banco
-
-Repositórios específicos por entidade
-
-### 🔧 APIs Integradas
-
-OpenWeather API → dados climáticos em tempo real
-
-ViaCEP API → busca automática por CEP
-
-Firebase APIs → autenticação, banco de dados, notificações
-
----
 # 🌱 IAagro - Tecnologia a serviço da agricultura sustentável 🚀

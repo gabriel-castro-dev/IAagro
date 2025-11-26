@@ -828,38 +828,7 @@ const handleCEPChange = async (e) => {
                                 <h1 className={styles.welcomeTitle}>
                                     🌾 Bem-vindo ao IAgro, {userName}!
                                 </h1>
-                                <div className={styles.dashboardCard}>
-                                    <div className={styles.dashboardSection}>
-                                        <h3>🌾 O que é o IAgro?</h3>
-                                        <p>
-                                            O IAgro é sua plataforma completa de gestão agrícola inteligente. 
-                                            Aqui você pode:
-                                        </p>
-                                        <ul>
-                                            <li>📊 Analisar sua produtividade agrícola</li>
-                                            <li>💧 Calcular necessidades de irrigação</li>
-                                            <li>📈 Visualizar gráficos e estatísticas</li>
-                                            <li>🤖 Conversar com nosso assistente IA especializado</li>
-                                            <li>📋 Gerenciar suas tarefas e lembretes</li>
-                                            <li>🌤️ Acompanhar condições climáticas</li>
-                                            <li>📈 Monitorar ações do agronegócio</li>
-                                        </ul>
-                                    </div>
-
-                                    {/* Resto do conteúdo do dashboard existente... */}
-                                    <div className={styles.dashboardSection}>
-                                        <h3>🚀 Como Começar?</h3>
-                                        <ol>
-                                            <li>Complete seu <strong>Perfil</strong> com suas informações</li>
-                                            <li>Adicione seus dados em <strong>Meus Dados</strong></li>
-                                            <li>Crie tarefas e lembretes importantes</li>
-                                            <li>Explore as <strong>Análises</strong> e gráficos</li>
-                                            <li>Use o <strong>Assistente IA</strong> para tirar dúvidas</li>
-                                        </ol>
-                                    </div>
-
-                                    {/* ... resto do conteúdo ... */}
-                                </div>
+                              
 
                                 {/* Card de Assistente IA (existente) */}
                                 <div className={styles.aiAssistantCard}>
