@@ -71,19 +71,31 @@ O setor agrícola enfrenta desafios na adoção de tecnologia acessível. O IAag
 ## 🏛️ Arquitetura MVC + Repository Pattern
 ```
 src/
+├── authContext/
 ├── models/ # MODEL - Classes de dados
 │ ├── User.js
 │ ├── AgricultureData.js
 │ └── WeatherData.js
 │
-├── views/ # VIEW - Componentes React
-│ └── components/
+├── components/ # VIEW - Componentes React
+│ └── Home.jsx
+│ └── Home.module.css
+│ ├── auth/
+│ ├── Calculators/
+│ ├── Charts/
+│ ├── chatBot/
+│ ├── Footer/
+│ ├── PDF/
+│ ├── Tasks/
 │
 ├── controllers/ # CONTROLLER - Lógica de negócio
 │ ├── UserController.js
 │ ├── DataController.js
 │ ├── WeatherController.js
 │ └── AddressController.js
+│ └── ChatbotController.js
+│ └── PDFController.js
+│ └── TaskController.js
 │
 ├── repositories/ # REPOSITORY - Camada de persistência
 │ ├── UserRepository.js
@@ -91,6 +103,15 @@ src/
 │ └── WeatherRepository.js
 │
 └── services/ # Integrações externas
+│ ├── addressService.js
+│ ├── calculatorService.js
+│ └── chartDataService.js
+│ ├── chatbotService.js
+│ ├── emailNotificationService.js
+│ └── pdfService.js
+│ ├── profileService.js
+│ ├── taskService.js
+│ └── weatherService.js
 ```
 ---
 # Padrões de Projeto GoF Implementados
