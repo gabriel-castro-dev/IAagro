@@ -6,6 +6,7 @@ import EsqueciSenha from './components/auth/EsqueciSenha';
 import RedefinirSenha from './components/auth/RedefinirSenha';
 import { AuthProvider } from './authContext';
 import Home from './components/Home';
+import TermoDeUso from './components/auth/TermoDeUso';
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/recuperarsenha" element={<EsqueciSenha />} />
             <Route path="/__/auth/action" element={<RedefinirSenha />} />
-             <Route path="/Home" element={<Home />} />
+            <Route path="/Home" element={<Home />} />
+            <Route path="/termo" element={<TermoDeUso />} />
           </Routes>
         </Router>
       </AuthProvider>

@@ -52,7 +52,9 @@ const Cadastrar = () => {
             <div className={styles.container}>
                 <div className={styles.left}>
                     <h1>CRIAR CONTA</h1>
-                    <p>Preencha os campos para criar sua conta e acessar nossos serviços</p>
+                    <p>Preencha os campos para criar sua conta e acessar nossos serviços  
+                        <Link to="/termo" className={styles.left}>Ao criar a conta você automaticamente concorda com os termos (Clique aqui para ler mais) </Link>
+                        </p>
                     <div className={styles.buttonGroup}>
                         <Link to="/" className={styles.backButton}>Voltar ao login</Link>
                     </div>
